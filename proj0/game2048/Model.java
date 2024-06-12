@@ -19,7 +19,7 @@ public class Model extends Observable {
 
     /* Coordinate System: column C, row R of the board (where row 0,
      * column 0 is the lower-left corner of the board) will correspond
-     * to board.tile(c, r).  Be careful! It works like (x, y) coordinates.
+     * to board.tile(c, r).  Be careful! It works like  (x, y) coordinates.
      */
 
     /** Largest piece value. */
@@ -106,6 +106,34 @@ public class Model extends Observable {
      *    value, then the leading two tiles in the direction of motion merge,
      *    and the trailing tile does not.
      * */
+    public boolean tile_slide(){
+        int k = board.size();
+        boolean changed = false;
+        for (int c = 0; c<k; c++){
+            int border =1;
+            for (int r = k-1; r>=0; r--){
+                if(board.tile(c,r) == null || r == k-border)continue;
+                int i =r;
+                while(i<k-border){
+                    if(this.board.tile(c,i+1) == null) {
+                        this.board.move(c, i + 1, board.tile(c, i));
+                        i++;
+                        changed = true;
+                    }
+                    else if(board.tile(c,i+1).value() == board.tile(c,i).value()){
+                        board.move(c, i + 1, board.tile(c,i));
+                        score += board.tile(c, i+1).value();
+                        i++;
+                        border++;
+                        changed = true;
+                    }
+                    else border++;
+                }
+            }
+        }
+        return changed;
+    }
+
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
@@ -113,6 +141,10 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+
+        this.board.setViewingPerspective(side);
+        changed = tile_slide();
+        this.board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
@@ -138,6 +170,14 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        int s = b.size();
+        for (int c = 0; c<s; c++) {
+            for (int r = s - 1; r >= 0; r--) {
+                if(b.tile(c,r) == null){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +188,19 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        int s = b.size();
+        int score = 0;
+        for (int c = 0; c<s; c++) {
+            for (int r = s - 1; r >= 0; r--) {
+                if(b.tile(c,r) == null){
+                    continue;
+                }
+                score += b.tile(c,r).value();
+                }
+            }
+        if (score >= MAX_PIECE){
+            return true;
+        }
         return false;
     }
 
@@ -157,8 +210,34 @@ public class Model extends Observable {
      * 1. There is at least one empty space on the board.
      * 2. There are two adjacent tiles with the same value.
      */
+    public static boolean AdjacentMoveByside(Board b, Side side){   // Helper function
+        b.setViewingPerspective(side);
+        int s = b.size();
+        for (int c = 0; c<s; c++) {
+            int up = b.tile(c,s-1).value();   // up row value
+            for (int r = s - 2; r >= 0; r--) {
+                int down = b.tile(c,r).value();
+                if(up == down){
+                    return true;
+                }
+                up = down;
+            }
+        }
+        b.setViewingPerspective(Side.NORTH);
+         return false;
+    }
+
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        if(emptySpaceExists(b)){
+            return true;
+        }
+        if(AdjacentMoveByside(b,Side.NORTH)){
+            return true;
+        }
+        if(AdjacentMoveByside(b,Side.WEST)){
+            return true;
+        }
         return false;
     }
 
