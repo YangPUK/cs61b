@@ -14,6 +14,7 @@ public class DebugExercise2 {
 
         int max = b & w | a & z;
         return max;
+//        return a > b ? a : b;
     }
 
 
@@ -58,7 +59,7 @@ public class DebugExercise2 {
         int i = 0;
         int sum = 0;
         while (i < x.length) {
-            sum = sum + add(sum, x[i]);
+            sum = add(sum, x[i]);
             i = i + 1;
         }
         return sum;
@@ -71,7 +72,7 @@ public class DebugExercise2 {
     public static int sumOfElementwiseMaxes(int[] a, int[] b) {
         int[] maxes = arrayMax(a, b);
         int sumofMaxes = arraySum(maxes);
-        return sumofMaxes;
+        return arraySum(a)+arraySum(b)-sumofMaxes;
     }
 
 
