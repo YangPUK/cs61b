@@ -30,7 +30,7 @@ public class SquarePrimesTest {
         boolean changed = IntListExercises.squarePrimes(lst);
         assertEquals("0", lst.toString());
         assertFalse(changed);
-    }git
+    }
     @Test
     public void testSquarePrimesSimple3() {
         IntList lst = IntList.of(4,6,8,9,10,11);
