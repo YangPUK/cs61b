@@ -16,12 +16,13 @@ public class ArrayDeque<Item> {
 
     private void resize(int capacity) {
         Item[] a = (Item[]) new Object[capacity];
-        for (int i = 0, p = head + 1; i < items.length; i++, p++) {
+        for (int i = 0, p = head + 1; i < size; i++, p++) {
             if (p == items.length){
                 p = 0;
             }
             a[i] = items[p];
         }
+        items = a;
         head = capacity - 1;
         tail = size;
     }
@@ -45,17 +46,29 @@ public class ArrayDeque<Item> {
     }
 
     public Item removeFirst(){
-        if (items.length >= 16 || size < (items.length/4)){
+        if (size == 0) {
+            return null;
+        }
+        if (items.length >= 16 && size < (items.length/4)){
             resize(items.length/2);
         }
         head++;
+        if (head == items.length) {
+            head = 0;
+        }
         size--;
         return items[head];
     }
 
     public Item removeLast(){
-        if (items.length >= 16 || size < (items.length/4)){
+        if (size == 0) {
+            return null;
+        }
+        if (items.length >= 16 && size < (items.length/4)){
             resize(items.length/2);
+        }
+        if (tail == 0){
+            tail = items.length;
         }
         tail--;
         size--;
