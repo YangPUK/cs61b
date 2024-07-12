@@ -3,83 +3,87 @@ package deque;
 public class ArrayDeque<Item> {
     private Item[] items;
     private int size;
-
-    /* The first item is at sentinel.next*/
-    private LinkedListDeque.IntNode sentinel;
-    //private IntNode last;
-    private int size;
+    private int head;
+    private int tail;
+    private int capacity;
 
     /* Creates new list*/
-    public void LinkedListDeque() {
-        sentinel = new LinkedListDeque.IntNode(null, null, null);
-        //last = new IntNode(null, null, null);
+    public void ArrayDeque() {
+        capacity = 8;
+        items = (Item[]) new Object[capacity];
         size = 0;
+        head = capacity - 1;
+        tail = 0;
     }
 
-    public void LinkedListDeque(Item x) {
-        sentinel = new LinkedListDeque.IntNode(null, null, null);
-        sentinel.next = new LinkedListDeque.IntNode(sentinel, x, sentinel);
-        sentinel.prev = sentinel.next;
-        size = 1;
-    }
-    public void addFirst(Item x) {
-        if (sentinel == null) LinkedListDeque(x);
-        else {
-            sentinel.next = new LinkedListDeque.IntNode(sentinel, x, sentinel.next);
-            sentinel.next.next.prev = sentinel.next;
-            size++;
+    private void resize(int capacity) {
+        Item[] a = (Item[]) new Object[capacity];
+        for (int i = 0, p = head + 1; i < items.length; i++, p++) {
+            if (p == size){
+                p = 0;
+            }
+            a[i] = items[p];
         }
+        head = capacity - 1;
+        tail = size;
     }
 
-    public void addLast(Item x) {
-        if (sentinel == null) LinkedListDeque(x);
-        else {
-            sentinel.prev = new LinkedListDeque.IntNode(sentinel.prev, x, sentinel);
-            sentinel.prev.prev.next = sentinel.prev;
-            size++;
+    public void addFirst(Item x){
+        if (size == items.length) {
+            resize(size * 2);
         }
+        items[head] = x;
+        head--;
     }
 
-    public boolean isEmpty() {
-        if (size == 0) return true;
+    public void addLast(Item x){
+        if (size == items.length) {
+            resize(size * 2);
+        }
+        items[tail] = x;
+        tail++;
+    }
+
+    public Item removeFirst(){
+        if (capacity >= 16 || size < (capacity/4)){
+            resize(capacity/2);
+        }
+        head++;
+        return items[head];
+    }
+
+    public Item removeLast(){
+        if (capacity >= 16 || size < (capacity/4)){
+            resize(capacity/2);
+        }
+        tail--;
+        return items[tail];
+    }
+
+    public boolean isEmpty(){
+        if (size == 0){
+            return true;
+        }
         return false;
     }
 
-    public int size() {
-        return size;}
-
-    public void printDeque() {
-        LinkedListDeque.IntNode p = sentinel.next;
-        for (int i = 0; i < size; i++) {
-            System.out.print(p.item + " ");
-            p = p.next;
+    public Item get(int Index){
+        if (size == 0){
+            return null;
         }
-    }
-
-    public Item removeFirst() {
-        if (size == 0) return null;
-        Item result = sentinel.next.item;
-        sentinel.next = sentinel.next.next;
-        sentinel.next.prev = sentinel;
-        size--;
-        return result;
-    }
-
-    public Item removeLast() {
-        if (size == 0) return null;
-        Item result = sentinel.prev.item;
-        sentinel.prev = sentinel.prev.prev;
-        sentinel.prev.next = sentinel;
-        return result;
-    }
-
-    public Item get(int index) {
-        if (index >= size || index < 0)return null;
-        LinkedListDeque.IntNode p = sentinel.next;
-        while (index > 0){
-            p = p.next;
-            index--;
-        }
-        return p.item;
+        return items[Index];
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
