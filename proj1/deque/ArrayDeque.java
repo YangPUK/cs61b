@@ -5,21 +5,19 @@ public class ArrayDeque<Item> {
     private int size;
     private int head;
     private int tail;
-    private int capacity;
 
     /* Creates new list*/
-    public void ArrayDeque() {
-        capacity = 8;
-        items = (Item[]) new Object[capacity];
+    public ArrayDeque() {
+        items = (Item[]) new Object[8];
         size = 0;
-        head = capacity - 1;
+        head = 7;
         tail = 0;
     }
 
     private void resize(int capacity) {
         Item[] a = (Item[]) new Object[capacity];
         for (int i = 0, p = head + 1; i < items.length; i++, p++) {
-            if (p == size){
+            if (p == items.length){
                 p = 0;
             }
             a[i] = items[p];
@@ -34,6 +32,7 @@ public class ArrayDeque<Item> {
         }
         items[head] = x;
         head--;
+        size++;
     }
 
     public void addLast(Item x){
@@ -42,21 +41,24 @@ public class ArrayDeque<Item> {
         }
         items[tail] = x;
         tail++;
+        size++;
     }
 
     public Item removeFirst(){
-        if (capacity >= 16 || size < (capacity/4)){
-            resize(capacity/2);
+        if (items.length >= 16 || size < (items.length/4)){
+            resize(items.length/2);
         }
         head++;
+        size--;
         return items[head];
     }
 
     public Item removeLast(){
-        if (capacity >= 16 || size < (capacity/4)){
-            resize(capacity/2);
+        if (items.length >= 16 || size < (items.length/4)){
+            resize(items.length/2);
         }
         tail--;
+        size--;
         return items[tail];
     }
 
@@ -72,6 +74,21 @@ public class ArrayDeque<Item> {
             return null;
         }
         return items[Index];
+    }
+
+    public int size(){
+        return size;
+    }
+
+    public void printDeque() {
+        int p = head + 1;
+        for (int i = 0; i < size; i++) {
+            if (p == items.length){
+                p = 0;
+            }
+            System.out.print(items[p] + " ");
+            p++;
+        }
     }
 }
 

@@ -20,20 +20,20 @@ public class LinkedListDeque<Item> {
     private int size;
 
     /* Creates new list*/
-    public void LinkedListDeque() {
+    public LinkedListDeque() {
         sentinel = new IntNode(null, null, null);
-        //last = new IntNode(null, null, null);
         size = 0;
     }
 
     public void LinkedListDeque(Item x) {
-        sentinel = new IntNode(null, null, null);
         sentinel.next = new IntNode(sentinel, x, sentinel);
         sentinel.prev = sentinel.next;
         size = 1;
     }
     public void addFirst(Item x) {
-        if (sentinel == null) LinkedListDeque(x);
+        if (sentinel.next == null) {
+            LinkedListDeque(x);
+        }
         else {
             sentinel.next = new IntNode(sentinel, x, sentinel.next);
             sentinel.next.next.prev = sentinel.next;
@@ -42,7 +42,9 @@ public class LinkedListDeque<Item> {
     }
 
     public void addLast(Item x) {
-        if (sentinel == null) LinkedListDeque(x);
+        if (sentinel.next == null) {
+            LinkedListDeque(x);
+        }
         else {
             sentinel.prev = new IntNode(sentinel.prev, x, sentinel);
             sentinel.prev.prev.next = sentinel.prev;

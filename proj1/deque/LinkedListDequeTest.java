@@ -16,6 +16,7 @@ public class LinkedListDequeTest {
 
         System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
         LinkedListDeque<String> lld1 = new LinkedListDeque<String>();
+        ArrayDeque<String> ad1 = new ArrayDeque<>();
 
 		assertTrue("A newly initialized LLDeque should be empty", lld1.isEmpty());
 		lld1.addFirst("front");
@@ -33,6 +34,12 @@ public class LinkedListDequeTest {
 
 		System.out.println("Printing out deque: ");
 		lld1.printDeque();
+        System.out.println("\nPrinting out Arraydeque: ");
+        ad1.addFirst("front");
+        ad1.addLast("middle");
+        ad1.addLast("back");
+        ad1.printDeque();
+
     }
 
     @Test
@@ -52,6 +59,8 @@ public class LinkedListDequeTest {
 		lld1.removeFirst();
 		// should be empty
 		assertTrue("lld1 should be empty after removal", lld1.isEmpty());
+
+
 
     }
 
