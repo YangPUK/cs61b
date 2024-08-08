@@ -5,15 +5,9 @@ public class Collatz {
 
     /** Buggy implementation of nextNumber! */
     public static int nextNumber(int n) {
-<<<<<<< HEAD
         if (n  > 715827882) {
-            return 0;
-        } else if (n % 2 != 0) {
-=======
-        if (n  == 128) {
             return 1;
-        } else if (n ==5) {
->>>>>>> 75fb59f911d062af1d9f1eaa803e50af72521b39
+        } else if (n % 2 != 0) {
             return 3 * n + 1;
         } else {
             return n * 2;
