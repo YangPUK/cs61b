@@ -1,6 +1,6 @@
 package deque;
 
-public class ArrayDeque<T> {
+public class ArrayDeque<T> implements Deque<T> {
     private T[] array;
     private int size;
     private int head;
@@ -33,6 +33,7 @@ public class ArrayDeque<T> {
         }
         array[head] = x;
         head--;
+        if (head < 0) head = array.length - 1;
         size++;
     }
 
@@ -42,6 +43,7 @@ public class ArrayDeque<T> {
         }
         array[tail] = x;
         tail++;
+        if (tail == array.length) tail = 0;
         size++;
     }
 
@@ -57,7 +59,9 @@ public class ArrayDeque<T> {
             head = 0;
         }
         size--;
-        return array[head];
+        T tmp = array[head];
+        array[head] = null;
+        return tmp;
     }
 
     public T removeLast(){
@@ -72,7 +76,9 @@ public class ArrayDeque<T> {
         }
         tail--;
         size--;
-        return array[tail];
+        T tmp = array[tail];
+        array[tail] = null;
+        return tmp;
     }
 
     public boolean isEmpty(){
@@ -87,7 +93,7 @@ public class ArrayDeque<T> {
             return null;
         }
         int p = head + 1;
-        if (p + index <= array.length){
+        if (p + index < array.length){
             return array[p + index];
         }
         return array[p + index - array.length];
@@ -98,13 +104,10 @@ public class ArrayDeque<T> {
     }
 
     public void printDeque() {
-        int p = head + 1;
-        for (int i = 0; i < size; i++, p++) {
-            if (p == array.length){
-                p = 0;
-            }
-            System.out.print(array[p] + " ");
+        for (int i = 0; i < size; i++) {
+            System.out.print(get(i) + " ");
         }
+        System.out.println();
     }
 }
 

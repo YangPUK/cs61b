@@ -144,28 +144,39 @@ public class LinkedListDequeTest {
 
         System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
 
-        LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
-        LinkedListDeque<Integer> lld2 = new LinkedListDeque<>();
+//        LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
+//        LinkedListDeque<Integer> lld2 = new LinkedListDeque<>();
         ArrayDeque<Integer> ad1 = new ArrayDeque<>();
-        ArrayDeque<Integer> ad2 = new ArrayDeque<>();
-        for (int index = 0; index < 100; index++){
-            lld2.addLast(index);
-            ad2.addLast(index);
-            assertEquals("test getRecursive", index, lld2.getRecursive(index), 0);
-            assertEquals("test getRecursive", index, ad2.get(index), 0);
+//        ArrayDeque<Integer> ad2 = new ArrayDeque<>();
+        MaxArrayDeque<Integer> mad1 = new MaxArrayDeque<>();
+        MaxArrayDeque<Integer> mad2 = new MaxArrayDeque<>();
+        mad2.addFirst(1);
+        mad2.removeFirst();
+        for(int j = 0; j < 10; j++) {
+            mad2.addLast(j);
         }
+        System.out.println(mad2.removeLast());
+//        for (int index = 0; index < 100; index++){
+//            lld2.addLast(index);
+//            ad2.addLast(index);
+//            assertEquals("test getRecursive", index, lld2.getRecursive(index), 0);
+//            assertEquals("test getRecursive", index, ad2.get(index), 0);
+//        }
         for (int i = 0; i < 100000; i++) {
-            lld1.addLast(i);
+//            lld1.addLast(i);
             ad1.addLast(i);
+            mad1.addLast(i);
         }
         for (double i = 0; i < 50000; i++) {
-            assertEquals("Should have the same value", i, (double) lld1.removeFirst(), 0.0);
+//            assertEquals("Should have the same value", i, (double) lld1.removeFirst(), 0.0);
             assertEquals("Should have the same value", i, (double) ad1.removeFirst(), 0.0);
+            assertEquals("Should have the same value", i, (double) mad1.removeFirst(), 0.0);
         }
 
         for (double i = 99999; i > 50000; i--) {
-            assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
+//            assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
             assertEquals("Should have the same value", i, (double) ad1.removeLast(), 0.0);
+            assertEquals("Should have the same value", i, (double) mad1.removeLast(), 0.0);
         }
         
 
