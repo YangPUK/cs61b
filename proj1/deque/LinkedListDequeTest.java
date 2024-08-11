@@ -145,7 +145,15 @@ public class LinkedListDequeTest {
         System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
 
         LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
+        LinkedListDeque<Integer> lld2 = new LinkedListDeque<>();
         ArrayDeque<Integer> ad1 = new ArrayDeque<>();
+        ArrayDeque<Integer> ad2 = new ArrayDeque<>();
+        for (int index = 0; index < 100; index++){
+            lld2.addLast(index);
+            ad2.addLast(index);
+            assertEquals("test getRecursive", index, lld2.getRecursive(index), 0);
+            assertEquals("test getRecursive", index, ad2.get(index), 0);
+        }
         for (int i = 0; i < 100000; i++) {
             lld1.addLast(i);
             ad1.addLast(i);
