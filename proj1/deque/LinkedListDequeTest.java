@@ -148,8 +148,8 @@ public class LinkedListDequeTest {
 //        LinkedListDeque<Integer> lld2 = new LinkedListDeque<>();
         ArrayDeque<Integer> ad1 = new ArrayDeque<>();
 //        ArrayDeque<Integer> ad2 = new ArrayDeque<>();
-        MaxArrayDeque<Integer> mad1 = new MaxArrayDeque<>();
-        MaxArrayDeque<Integer> mad2 = new MaxArrayDeque<>();
+        ArrayDeque<Integer> mad1 = new ArrayDeque<>();
+        ArrayDeque<Integer> mad2 = new ArrayDeque<>();
         mad2.addFirst(1);
         mad2.removeFirst();
         for(int j = 0; j < 10; j++) {

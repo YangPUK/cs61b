@@ -1,5 +1,6 @@
 package deque;
 
+//import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdRandom;
 import org.junit.Test;
 
@@ -43,10 +44,11 @@ public class MaxArrayDequeTest {
         System.out.println(mad1.get(mad1.size()));
     }
 
+
     @Test
     public void randomizedTest(){
-        MaxArrayDeque<Integer> L = new MaxArrayDeque<>();
-        MaxArrayDeque<Integer> K = new MaxArrayDeque<>();
+        ArrayDeque<Integer> L = new ArrayDeque<>();
+        ArrayDeque<Integer> K = new ArrayDeque<>();
             int N = 20;
             for (int i = 0; i < N; i += 1) {
                 int operationNumber = StdRandom.uniform(0, 6);
@@ -94,5 +96,7 @@ public class MaxArrayDequeTest {
             }
             K.printDeque();
             L.printDeque();
+            assertFalse("K equals L", K.equals(null));
     }
+
 }
