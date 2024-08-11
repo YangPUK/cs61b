@@ -97,6 +97,10 @@ public class ArrayDeque<T> implements Deque<T> {
         return array[p + index - array.length];
     }
 
+    public T getLast(){
+        return get(size -1);
+    }
+
     @Override
     public int size(){
         return size;
@@ -109,6 +113,7 @@ public class ArrayDeque<T> implements Deque<T> {
         }
         System.out.println();
     }
+
 }
 
 
