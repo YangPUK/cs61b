@@ -87,7 +87,7 @@ public class ArrayDeque<T> {
             return null;
         }
         int p = head + 1;
-        if (p + index < array.length){
+        if (p + index <= array.length){
             return array[p + index];
         }
         return array[p + index - array.length];
