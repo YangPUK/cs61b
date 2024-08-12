@@ -12,12 +12,12 @@ public class MaxArrayDeque<T> extends ArrayDeque<T> {
 
     public T max() {
         if (isEmpty()) {
-        return null;
+            return null;
         }
         T tmpMax = get(0);
         for (int i = 1; i < size(); i++) {
             if (comp.compare(tmpMax, get(i)) < 0) {
-              tmpMax = get(i);
+                tmpMax = get(i);
             }
         }
         return tmpMax;

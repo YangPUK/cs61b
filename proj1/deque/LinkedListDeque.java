@@ -26,7 +26,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         size = 0;
     }
 
-    void initailize(T x) {
+    private void addHelper(T x) {
         sentinel.next = new Node(sentinel, x, sentinel);
         sentinel.prev = sentinel.next;
         size = 1;
@@ -35,7 +35,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     @Override
     public void addFirst(T x) {
         if (sentinel.next == null) {
-            initailize(x);
+            addHelper(x);
         } else {
             sentinel.next = new Node(sentinel, x, sentinel.next);
             sentinel.next.next.prev = sentinel.next;
@@ -46,7 +46,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     @Override
     public void addLast(T x) {
         if (sentinel.next == null) {
-            initailize(x);
+            addHelper(x);
         } else {
             sentinel.prev = new Node(sentinel.prev, x, sentinel);
             sentinel.prev.prev.next = sentinel.prev;
@@ -94,7 +94,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
 
     @Override
     public T get(int index) {
-        if (index >= size || index < 0){
+        if (index >= size || index < 0) {
             return null;
         }
         Node p = sentinel.next;
@@ -117,7 +117,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
             return null;
         }
         Node p = sentinel.next;
-        if (index == 0){
+        if (index == 0) {
             return p.item;
         }
         return getHelper(p, index);
@@ -132,7 +132,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
             return false;
         }
         Deque<?> oa = (Deque<?>) o;
-        if (oa.size() != size){
+        if (oa.size() != size) {
             return false;
         }
         for (int i = 0; i < size; i++) {
@@ -150,7 +150,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     private class LinkedListIterator implements Iterator<T> {
         private int wizPos;
 
-        public LinkedListIterator() {
+        LinkedListIterator() {
             wizPos = 0;
         }
 
@@ -158,7 +158,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
             return wizPos < size;
         }
 
-        public T next(){
+        public T next() {
             return get(wizPos++);
         }
     }

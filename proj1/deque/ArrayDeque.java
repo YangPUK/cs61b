@@ -78,7 +78,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (size == 0) {
             return null;
         }
-        if (array.length >= 16 && size < (array.length / 4)){
+        if (array.length >= 16 && size < (array.length / 4)) {
             resize(array.length / 2);
         }
         if (tail == 0) {
@@ -92,12 +92,12 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     }
 
     @Override
-    public T get(int index){
-        if (index < 0 || index >= size){
+    public T get(int index) {
+        if (index < 0 || index >= size) {
             return null;
         }
         int p = head + 1;
-        if (p + index < array.length){
+        if (p + index < array.length) {
             return array[p + index];
         }
         return array[p + index - array.length];
@@ -144,7 +144,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private class ArrayDequeIterator implements Iterator<T> {
         private int wizPos;
 
-        public ArrayDequeIterator() {
+        ArrayDequeIterator() {
             wizPos = 0;
         }
 
