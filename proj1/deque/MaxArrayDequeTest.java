@@ -7,6 +7,7 @@ import org.junit.Test;
 import static java.lang.Math.abs;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 
@@ -97,10 +98,15 @@ public class MaxArrayDequeTest {
             }
             K.printDeque();
             L.printDeque();
-            assertFalse("K equals L", K.equals(null));
+            LinkedListDeque<ArrayDeque> l1 = new LinkedListDeque<>();
+            ArrayDeque<ArrayDeque> l2 = new ArrayDeque<>();
+            l1.addFirst(K);
+            l2.addLast(L);
+
+            assertTrue("K equals L", l1.equals(l2));
             Iterator<Integer> it = K.iterator();
         for (int n : K) {
-            System.out.print(n+" ");
+            System.out.print(n +" ");
         }
     }
 }
