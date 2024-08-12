@@ -101,11 +101,6 @@ public class LinkedListDeque<T> implements Deque<T> {
         return p.item;
     }
 
-    @Override
-    public Iterator<T> iterator() {
-        return null;
-    }
-
     private T getHelper(Node p, int index) {
         if (index == 0) return p.item;
         return getHelper(p.next, --index);
@@ -117,4 +112,40 @@ public class LinkedListDeque<T> implements Deque<T> {
         return getHelper(p, index);
     }
 
+    @Override
+    public boolean equals(Object o){
+        if (this == o) return true;
+        if (!(o instanceof LinkedListDeque)) return false;
+        if (((LinkedListDeque<?>) o).size() != size){
+            return false;
+        }
+        for (int i = 0; i < size; i++) {
+            if (get(i) != ((LinkedListDeque<?>) o).get(i)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Iterator<T> iterator(){
+        return new LinkedListIterator();
+    }
+
+    private class LinkedListIterator implements Iterator<T>{
+        private int wizPos;
+
+        public LinkedListIterator() {
+            wizPos = 0;
+        }
+
+        public boolean hasNext(){
+            return wizPos < size;
+        }
+
+        public T next(){
+            T result = get(wizPos++);
+            return result;
+        }
+    }
 }

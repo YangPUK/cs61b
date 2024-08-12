@@ -114,12 +114,13 @@ public class ArrayDeque<T> implements Deque<T> {
             System.out.print(get(i) + " ");
         }
         System.out.println();
+
     }
 
     @Override
     public boolean equals(Object o){
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ArrayDeque)) return false;
         if (((ArrayDeque<?>) o).size() != size){
             return false;
         }
@@ -133,9 +134,25 @@ public class ArrayDeque<T> implements Deque<T> {
 
     @Override
     public Iterator<T> iterator(){
-        return null;
+        return new ArrayDequeIterator();
     }
-    
+
+    private class ArrayDequeIterator implements Iterator<T>{
+        private int wizPos;
+
+        public ArrayDequeIterator() {
+            wizPos = 0;
+        }
+
+        public boolean hasNext(){
+            return wizPos < size;
+        }
+
+        public T next(){
+            T result = get(wizPos++);
+            return result;
+        }
+    }
 }
 
 

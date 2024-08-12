@@ -8,6 +8,7 @@ import static java.lang.Math.abs;
 import static org.junit.Assert.*;
 
 import java.util.Comparator;
+import java.util.Iterator;
 
 public class MaxArrayDequeTest {
     public class standardCompartor implements Comparator<Integer> {
@@ -98,5 +99,4 @@ public class MaxArrayDequeTest {
             L.printDeque();
             assertFalse("K equals L", K.equals(null));
     }
-
 }
