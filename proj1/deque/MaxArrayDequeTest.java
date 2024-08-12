@@ -99,9 +99,8 @@ public class MaxArrayDequeTest {
             L.printDeque();
             assertFalse("K equals L", K.equals(null));
             Iterator<Integer> it = K.iterator();
-        for (Iterator<Integer> iter = it; iter.hasNext(); ) {
-            int i = iter.next();
-            System.out.print(i+" ");
+        for (int n : K) {
+            System.out.print(n+" ");
         }
     }
 }
