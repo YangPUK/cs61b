@@ -1,6 +1,8 @@
 package capers;
 
 import java.io.File;
+import java.io.Serializable;
+
 import static capers.Utils.*;
 
 /** A repository for Capers 
@@ -11,15 +13,13 @@ import static capers.Utils.*;
  *    - dogs/ -- folder containing all of the persistent data for dogs
  *    - story -- file containing the current story
  *
- * TODO: change the above structure if you do something different.
  */
 public class CapersRepository {
     /** Current Working Directory. */
     static final File CWD = new File(System.getProperty("user.dir"));
 
     /** Main metadata folder. */
-    static final File CAPERS_FOLDER = new File(CWD, ".caper"); // TODO Hint: look at the `join`
-                                            //      function in Utils
+    static final File CAPERS_FOLDER = new File(CWD, ".caper");
 
     /**
      * Does required filesystem operations to allow for persistence.
@@ -41,13 +41,14 @@ public class CapersRepository {
      * @param text String of the text to be appended to the story
      */
     public static void writeStory(String text) {
-        // TODO
         File STORY = join(CAPERS_FOLDER, "story");
         if (STORY.exists()) {
             text = readContentsAsString(STORY) + text + "\n";
+        } else {
+            text = text + "\n";
         }
         writeContents(STORY, text);
-        System.out.println(text);
+        System.out.print(text);
     }
 
     /**
@@ -56,7 +57,9 @@ public class CapersRepository {
      * Also prints out the dog's information using toString().
      */
     public static void makeDog(String name, String breed, int age) {
-        // TODO
+        Dog d = new Dog(name, breed, age);
+        d.saveDog();
+        System.out.println(d.toString());
     }
 
     /**
@@ -66,6 +69,10 @@ public class CapersRepository {
      * @param name String name of the Dog whose birthday we're celebrating.
      */
     public static void celebrateBirthday(String name) {
-        // TODO
+        Dog BirthDog = Dog.fromFile(name);
+        if (BirthDog == null) {
+            return;
+        }
+        BirthDog.haveBirthday();
     }
 }

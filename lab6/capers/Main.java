@@ -52,7 +52,6 @@ public class Main {
             break;
         case "dog":
             validateNumArgs("dog", args, 4);
-            // TODO: make a dog
             String name = args[1];
             String breed = args[2];
             int age = Integer.parseInt(args[3]);
@@ -60,7 +59,7 @@ public class Main {
             break;
         case "birthday":
             validateNumArgs("birthday", args, 2);
-            // TODO: celebrate this dog's birthday
+            CapersRepository.celebrateBirthday(args[1]);
             break;
         default:
             exitWithError(String.format("Unknown command: %s", args[0]));
