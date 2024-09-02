@@ -18,7 +18,7 @@ public class TestArrayDequeEC {
             int opNum = StdRandom.uniform(0,4);
             if (opNum == 0) {
                 //addFirst
-                Integer valNum = StdRandom.uniform(0,9);
+                Integer valNum = StdRandom.uniform(0,100);
                 ads.addFirst(valNum);
                 sad.addFirst(valNum);
                 ErrMessage += "addFirst(" + valNum + ")\n";
@@ -26,7 +26,7 @@ public class TestArrayDequeEC {
             }
             if (opNum == 1) {
                 //addLast
-                Integer valNum = StdRandom.uniform(0,9);
+                Integer valNum = StdRandom.uniform(0,100);
                 ads.addLast(valNum);
                 sad.addLast(valNum);
                 ErrMessage += "addLast(" + valNum + ")\n";
