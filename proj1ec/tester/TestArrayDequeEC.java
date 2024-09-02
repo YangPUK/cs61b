@@ -43,9 +43,8 @@ public class TestArrayDequeEC {
                 assertEquals(ErrMessage, res, sad.removeFirst());
             }
             if (opNum == 3) {
-                //removeFirst
+                //removeLast
                 if (sad.isEmpty() && ads.isEmpty()) {
-                    System.out.println("removeLast()");
                     ErrMessage += "removeLast()\n";
                     continue;
                 }
