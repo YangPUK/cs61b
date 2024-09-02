@@ -18,39 +18,39 @@ public class TestArrayDequeEC {
             int opNum = StdRandom.uniform(0,5);
             if (opNum == 0) {
                 //addFirst
-                int valNum = StdRandom.uniform(0,100);
+                Integer valNum = StdRandom.uniform(0,100);
                 ads.addFirst(valNum);
                 sad.addFirst(valNum);
                 ErrMessage += "addFirst(" + valNum + ")\n";
-                assertEquals(ErrMessage,ads.get(0), sad.get(0));
+                assertEquals(ErrMessage, valNum, sad.get(0));
             }
             if (opNum == 1) {
                 //addLast
-                int valNum = StdRandom.uniform(0,100);
+                Integer valNum = StdRandom.uniform(0,100);
                 ads.addLast(valNum);
                 sad.addLast(valNum);
                 ErrMessage += "addLast(" + valNum + ")\n";
-                assertEquals(ErrMessage ,ads.get(ads.size() - 1), sad.get(sad.size() - 1));
+                assertEquals(ErrMessage , valNum, sad.get(sad.size() - 1));
             }
             if (opNum == 2) {
                 //removeFirst
                 if (sad.isEmpty() && ads.isEmpty()) {
                     ErrMessage += "removeFirst()\n";
-                    continue;
+                } else {
+                    Integer res = ads.removeFirst();
+                    ErrMessage += "removeFirst(): " + res + "\n";
+                    assertEquals(ErrMessage, res, sad.removeFirst());
                 }
-                Integer res = ads.removeFirst();
-                ErrMessage += "removeFirst(): " + res + "\n";
-                assertEquals(ErrMessage, res, sad.removeFirst());
             }
             if (opNum == 3) {
                 //removeLast
                 if (sad.isEmpty() && ads.isEmpty()) {
                     ErrMessage += "removeLast()\n";
-                    continue;
+                } else {
+                    Integer res = ads.removeLast();
+                    ErrMessage += "removeLast(): " + res + "\n";
+                    assertEquals(ErrMessage, res, sad.removeLast());
                 }
-                Integer res = ads.removeLast();
-                ErrMessage += "removeLast(): " + res + "\n";
-                assertEquals(ErrMessage, res, sad.removeLast());
             }
         }
     }
