@@ -18,7 +18,7 @@ public class TestArrayDequeEC {
             int opNum = StdRandom.uniform(0,4);
             if (opNum == 0) {
                 //addFirst
-                Integer valNum = StdRandom.uniform(0,1000);
+                Integer valNum = StdRandom.uniform(0,9);
                 ads.addFirst(valNum);
                 sad.addFirst(valNum);
                 ErrMessage += "addFirst(" + valNum + ")\n";
@@ -26,7 +26,7 @@ public class TestArrayDequeEC {
             }
             if (opNum == 1) {
                 //addLast
-                Integer valNum = StdRandom.uniform(0,1000);
+                Integer valNum = StdRandom.uniform(0,9);
                 ads.addLast(valNum);
                 sad.addLast(valNum);
                 ErrMessage += "addLast(" + valNum + ")\n";
@@ -38,7 +38,7 @@ public class TestArrayDequeEC {
                     ErrMessage += "removeFirst()\n";
                 } else {
                     Integer res = ads.removeFirst();
-                    ErrMessage += "removeFirst(): " + res + "\n";
+                    ErrMessage += "removeLast()\n";
                     assertEquals(ErrMessage, res, sad.removeFirst());
                 }
             }
@@ -48,7 +48,7 @@ public class TestArrayDequeEC {
                     ErrMessage += "removeLast()\n";
                 } else {
                     Integer res = ads.removeLast();
-                    ErrMessage += "removeLast(): " + res + "\n";
+                    ErrMessage += "removeLast()\n";
                     assertEquals(ErrMessage, res, sad.removeLast());
                 }
             }
