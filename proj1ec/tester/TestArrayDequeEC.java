@@ -15,10 +15,10 @@ public class TestArrayDequeEC {
         ArrayDequeSolution<Integer> ads = new ArrayDequeSolution<>();
         String ErrMessage = "";
         for (int i = 0; i < N; i++) {
-            int opNum = StdRandom.uniform(0,5);
+            int opNum = StdRandom.uniform(0,4);
             if (opNum == 0) {
                 //addFirst
-                Integer valNum = StdRandom.uniform(0,100);
+                Integer valNum = StdRandom.uniform(0,1000);
                 ads.addFirst(valNum);
                 sad.addFirst(valNum);
                 ErrMessage += "addFirst(" + valNum + ")\n";
@@ -26,7 +26,7 @@ public class TestArrayDequeEC {
             }
             if (opNum == 1) {
                 //addLast
-                Integer valNum = StdRandom.uniform(0,100);
+                Integer valNum = StdRandom.uniform(0,1000);
                 ads.addLast(valNum);
                 sad.addLast(valNum);
                 ErrMessage += "addLast(" + valNum + ")\n";
