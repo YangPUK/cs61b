@@ -1,7 +1,7 @@
 package gitlet;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author TODO
+ *  @author ebean
  */
 
 
@@ -27,6 +27,11 @@ public class Main {
                 needInit();
                 break;
             // TODO: FILL THE REST IN
+            case "commit":
+                needInit();
+                validateNumArgs("commit", args, 2);
+                Commit.mCommit(args[1]);
+                break;
         }
     }
 
@@ -41,7 +46,6 @@ public class Main {
             Utils.exitWithError("Incorrect operands.");
         }
     }
-
 }
 
 
