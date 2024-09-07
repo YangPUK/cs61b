@@ -1,9 +1,6 @@
 package bstmap;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     private int size;
@@ -109,9 +106,12 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         return printHelper(node.left) + "\n" + node.key.toString() + "\n" + printHelper(node.right);
     }
     public void printInOrder() {
-        String s;
-        s = printHelper(root);
-        System.out.println(s.toString());
+//        String s;
+//        s = printHelper(root);
+//        System.out.println(s);
+        for (K i : keySet()) {
+            System.out.println(i);
+        }
     }
 
 
@@ -126,9 +126,36 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         return node;
     }
 
+    private Set<K> setHelper(BSTNode<K, V> node) {
+        if (node == null) {
+            return new HashSet<K>();
+        }
+        Set<K> m = new HashSet<>();
+        m.add(node.key);
+        if (node.left == null && node.right == null) {
+            return m;
+        }
+        else if (node.left != null && node.right == null) {
+            Set<K> l = setHelper(node.left);
+            l.addAll(m);
+            return l;
+        }
+        else if (node.left == null && node.right != null) {
+            Set<K> r = setHelper(node.right);
+            m.addAll(r);
+            return m;
+        }
+        else {
+            Set<K> l = setHelper(node.left);
+            Set<K> r = setHelper(node.right);
+            l.addAll(m);
+            l.addAll(r);
+            return l;
+        }
+    }
     // Exception
     public Set<K> keySet() {
-        throw new UnsupportedOperationException();
+        return setHelper(root);
     }
 
     public V remove(K key) {

@@ -3,6 +3,8 @@ package bstmap;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
+import java.util.LinkedList;
+
 /** Tests by Brendan Hu, Spring 2015, revised for 2016 by Josh Hug */
 public class TestBSTMap {
 
@@ -85,6 +87,16 @@ public class TestBSTMap {
         BSTMap<String, Integer> b = new BSTMap<String, Integer>();
         b.put("hi", null);
         assertTrue(b.containsKey("hi"));
+    }
+
+    @Test
+    public void queueTest() {
+          BSTMap<String, Integer> b = new BSTMap<>();
+          b.put("hi", 0);
+          for (int i = 1; i < 20; i++) {
+              b.put("hi" + i, i);
+          }
+          b.printInOrder();
     }
 
 }
