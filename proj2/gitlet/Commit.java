@@ -3,15 +3,13 @@ package gitlet;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
-
-import java.util.Date; // TODO: You'll likely use this in this class
 import java.util.Formatter;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
+ *  @author ebean
  */
 public class Commit {
     /**
@@ -27,24 +25,28 @@ public class Commit {
 
 
     /* TODO: fill in the rest of this class. */
+    // Init inital commit.
     public static void setup(String msg){
-        String sha1 =sha1(msg);
-        msg = "Date: Wed Dec 31 16:00:00 1969 -0800\n" + msg + "\n";
-        msg = "commit " + sha1 + "\n" + msg;
-        msg = "===\n" + msg;
+        msg = "Date: Wed Dec 31 16:00:00 1969 -0800\n" + msg;
+        String hash = sha1(msg);
+        msg = "commit " + hash + "\n" + msg;
+        msg = "===\n" + msg + "\n\n";
         writeContents(Repository.commits, msg);
     }
 
+    //Make a usual commit.
     public static void mCommit(String msg) {
-        String sha1 =sha1(msg);
         String history = readContentsAsString(Repository.commits);
         Formatter timeStamp = new Formatter();
-        timeStamp.format("%1$ta %1$tb %1$te %1$ts %1tY", new java.util.Date());
+        timeStamp.format("%1$ta %1$tb %1$te %1$tH:%1$tM:%1$tS %1$tY ", new java.util.Date());
         msg = "Date: " + timeStamp.toString() + "\n" + msg;
-        msg = "Commit: " + sha1 + "\n" + msg;
-        msg = "===\n" + msg;
-        writeContents(Repository.commits, msg);
+        String hash = sha1(msg);
+        msg = "Commit: " + hash + "\n" + msg;
+        msg = "===\n" + msg + "\n\n";
+        writeContents(Repository.commits, msg + history);
     }
 
+    //make a merge commit.
     public static void mergeCommit(String msg) {}
 }
+

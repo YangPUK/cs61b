@@ -11,28 +11,27 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
-        // TODO: what if args is empty?
         if (args.length == 0) {
             Utils.exitWithError("Please enter a command.");
         }
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
                 validateNumArgs("init", args, 1);
                 Repository.setupPeresitence();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
                 needInit();
+                validateNumArgs("add", args, 2);
+                Repository.addFiles(args[1]);
                 break;
-            // TODO: FILL THE REST IN
             case "commit":
                 needInit();
                 validateNumArgs("commit", args, 2);
                 Commit.mCommit(args[1]);
                 break;
         }
+        Utils.exitWithError("No command with that name exists");
     }
 
     private static void needInit() {
@@ -42,8 +41,17 @@ public class Main {
     }
 
     public static void validateNumArgs(String cmd, String[] args, int n) {
-        if (args.length != n) {
-            Utils.exitWithError("Incorrect operands.");
+        switch (cmd) {
+            case "init", "commit", "add":
+                if (args.length != n) {
+                    Utils.exitWithError("Incorrect operands.");
+                }
+                break;
+            case "whatever":
+                if (args.length < n) {
+                    Utils.exitWithError("Incorrect operands.");
+                }
+                break;
         }
     }
 }

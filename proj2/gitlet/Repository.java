@@ -30,7 +30,7 @@ public class Repository {
     public static final File commits = join(LOGS_DIR, "commits");
     public static final File trees = join(GITLET_DIR, "trees");
 
-    /* TODO: fill in the rest of this class. */
+    //Init command.
     public static void setupPeresitence() {
         if (!GITLET_DIR.exists()) {
             GITLET_DIR.mkdir();
@@ -43,4 +43,10 @@ public class Repository {
             exitWithError("A Gitlet version-control system already exists in the current directory.");
         }
     }
+
+    //Add command.
+    public static void addFiles(String fileName) {
+        File file = join(BLOBS_DIR, fileName);
+    }
 }
+
