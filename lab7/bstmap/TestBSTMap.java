@@ -92,18 +92,26 @@ public class TestBSTMap {
     @Test
     public void queueTest() {
           BSTMap<Integer, Integer> b = new BSTMap<>();
-          for (int i = 5; i < 10; i++) {
-              b.put(i, i);
-          }
-          b.printInOrder();
-          b.remove(5);
-          for (int i = 0; i < 5; i++) {
-              b.put(i, i);
-          }
+          b.put(3,3);
+          b.remove(4);
           b.remove(1);
-          b.remove(3);
+          b.remove(4);
+          b.put(1,1);
           b.remove(0);
-          b.printInOrder();
+          b.put(2,2);
+          System.out.println(b.remove(1));
+//          for (int i = 5; i < 10; i++) {
+//              b.put(i, i);
+//          }
+//          b.printInOrder();
+//          b.remove(5);
+//          for (int i = 0; i < 5; i++) {
+//              b.put(i, i);
+//          }
+//          b.remove(1);
+//          b.remove(3);
+//          b.remove(0);
+//          b.printInOrder();
     }
 
     @Test
@@ -117,10 +125,13 @@ public class TestBSTMap {
                       int n1 = StdRandom.uniform(0,5);
                       System.out.println("add: " + n1);
                       b.put(n1,n1);
+                      assertTrue(b.containsKey(n1));
                   case 3,4:
                       int n2 = StdRandom.uniform(0, 5);
                       System.out.println("remove: " + n2);
-                      b.remove(n2);
+                      if (b.containsKey(n2)) {
+                        assertEquals(n2, b.remove(n2), 0);
+                      }
               }
           }
         b.printInOrder();

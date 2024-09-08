@@ -178,6 +178,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         if (node == null) {
             return null;
         }
+        V result = node.value;
         //No leaf
         if (node.left == null && node.right == null) {
             if (node.parent == null) {
@@ -190,7 +191,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
             else {
                 node.parent.right = null;
             }
-            return node.value;
+            return result;
         }
         //Has leaves
         BSTNode<K, V> next = getMin(node.right);
@@ -228,7 +229,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
             node.value = next.value;
         }
         size -= 1;
-        return node.value;
+        return result;
     }
 
     public V remove(K key, V value) {
