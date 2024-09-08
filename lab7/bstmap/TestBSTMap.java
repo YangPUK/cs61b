@@ -119,20 +119,20 @@ public class TestBSTMap {
           BSTMap<Integer, Integer> b = new BSTMap<>();
           int N = 10000;
           for (int i = 0; i < N; i++) {
-              int opNum = StdRandom.uniform(0,5);
-              switch (opNum) {
-                  case 0, 1, 2:
-                      int n1 = StdRandom.uniform(0,5);
+              int opNum = StdRandom.uniform(0,2);
+                  if (opNum != 0) {
+                      int n1 = StdRandom.uniform(0,20);
                       System.out.println("add: " + n1);
                       b.put(n1,n1);
                       assertTrue(b.containsKey(n1));
-                  case 3,4:
-                      int n2 = StdRandom.uniform(0, 5);
+                  }
+                  else {
+                      int n2 = StdRandom.uniform(0, 20);
                       System.out.println("remove: " + n2);
                       if (b.containsKey(n2)) {
                         assertEquals(n2, b.remove(n2), 0);
                       }
-              }
+                  }
           }
         b.printInOrder();
 
