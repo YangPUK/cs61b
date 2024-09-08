@@ -91,33 +91,36 @@ public class TestBSTMap {
 
     @Test
     public void queueTest() {
-          BSTMap<String, Integer> b = new BSTMap<>();
-          b.put("hi", 0);
-          for (int i = 0; i < 30; i++) {
-              b.put("hi" + i, i);
+          BSTMap<Integer, Integer> b = new BSTMap<>();
+          for (int i = 5; i < 10; i++) {
+              b.put(i, i);
           }
           b.printInOrder();
-          System.out.println("===================");
-          for (String key : b) {
-              System.out.println(key);
+          b.remove(5);
+          for (int i = 0; i < 5; i++) {
+              b.put(i, i);
           }
+          b.remove(1);
+          b.remove(3);
+          b.remove(0);
+          b.printInOrder();
     }
 
     @Test
     public void removeTst(){
           BSTMap<Integer, Integer> b = new BSTMap<>();
-          int N = 100;
+          int N = 10000;
           for (int i = 0; i < N; i++) {
-              int opNum = StdRandom.uniform(0,4);
+              int opNum = StdRandom.uniform(0,5);
               switch (opNum) {
                   case 0, 1, 2:
-                      int n1 = StdRandom.uniform(0,10);
-                      b.put(n1,n1);
+                      int n1 = StdRandom.uniform(0,5);
                       System.out.println("add: " + n1);
-                  case 3:
-                      int n2 = StdRandom.uniform(0, 10);
-                      b.remove(n2);
+                      b.put(n1,n1);
+                  case 3,4:
+                      int n2 = StdRandom.uniform(0, 5);
                       System.out.println("remove: " + n2);
+                      b.remove(n2);
               }
           }
         b.printInOrder();

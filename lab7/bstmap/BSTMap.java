@@ -180,7 +180,11 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         }
         //No leaf
         if (node.left == null && node.right == null) {
-            if (node.parent.left == node) {
+            if (node.parent == null) {
+                root = null;
+                size = 0;
+            }
+            else if (node.parent.left == node) {
                 node.parent.left = null;
             }
             else {
