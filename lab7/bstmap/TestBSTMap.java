@@ -93,10 +93,14 @@ public class TestBSTMap {
     public void queueTest() {
           BSTMap<String, Integer> b = new BSTMap<>();
           b.put("hi", 0);
-          for (int i = 1; i < 20; i++) {
+          for (int i = 0; i < 30; i++) {
               b.put("hi" + i, i);
           }
           b.printInOrder();
+          System.out.println("===================");
+          for (String key : b) {
+              System.out.println(key);
+          }
     }
 
 }

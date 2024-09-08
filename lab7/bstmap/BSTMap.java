@@ -18,8 +18,8 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
             this.value = value;
             this.parent = parent;
         }
-
     }
+
     public BSTMap() {
         size = 0;
         root = null;
@@ -30,12 +30,13 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         size = 0;
     }
 
-    private boolean containsHelper(K key, BSTNode<K, V> node) {
+    // Return the corresponding BSTNode
+    private BSTNode<K, V> containsHelper(K key, BSTNode<K, V> node) {
         if (node == null) {
-            return false;
+            return null;
         }
         else if (key.compareTo(node.key) == 0) {
-            return true;
+            return node;
         }
         else if (key.compareTo(node.key) < 0) {
             return containsHelper(key, node.left);
@@ -45,7 +46,11 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         }
     }
     public boolean containsKey(K key) {
-        return containsHelper(key, root);
+        BSTNode<K, V> node = containsHelper(key, root);
+        if (node == null) {
+            return false;
+        }
+        return true;
     }
 
     private V getHelper(K key, BSTNode<K, V> node) {
@@ -65,6 +70,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     public V get(K key) {
         return getHelper(key, root);
     }
+
 
     private void putHelper(K key, V value, BSTNode<K, V> node, BSTNode<K, V> parent, boolean isLeft) {
         if (node == null) {
@@ -99,24 +105,57 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         return size;
     }
 
+    //Recursive method to get all keys string
     private String printHelper(BSTNode<K, V> node) {
         if (node == null) {
             return "";
         }
-        return printHelper(node.left) + "\n" + node.key.toString() + "\n" + printHelper(node.right);
+        return printHelper(node.left) +  node.key.toString() + "\n" + printHelper(node.right);
     }
     public void printInOrder() {
-//        String s;
-//        s = printHelper(root);
-//        System.out.println(s);
-        for (K i : keySet()) {
-            System.out.println(i);
-        }
+        String s;
+        s = printHelper(root);
+        System.out.println(s);
     }
 
+    // A linkedList ordered by keys
+    private LinkedList<K> queueHelper(BSTNode<K, V> node) {
+        if (node == null) {
+            return new LinkedList<K>();
+        }
+        LinkedList<K> m = new LinkedList<>();
+        m.add(node.key);
+        if (node.left == null && node.right == null) {
+            return m;
+        }
+        else if (node.left != null && node.right == null) {
+            LinkedList<K> l = queueHelper(node.left);
+            l.addAll(m);
+            return l;
+        }
+        else if (node.left == null && node.right != null) {
+            LinkedList<K> r = queueHelper(node.right);
+            m.addAll(r);
+            return m;
+        }
+        else {
+            LinkedList<K> l = queueHelper(node.left);
+            LinkedList<K> r = queueHelper(node.right);
+            l.addAll(m);
+            l.addAll(r);
+            return l;
+        }
+    }
+    public Set<K> keySet() {
+        LinkedList<K> queue = queueHelper(root);
+        Set<K> set = new HashSet<>();
+        for (K i : queue) {
+            set.add(i);
+        }
+        return set;
+    }
 
-    private BSTNode<K, V> getFirst() {
-        BSTNode<K, V> node = root;
+    private BSTNode<K, V> getMin(BSTNode<K, V> node) {
         if (node == null) {
             return null;
         }
@@ -125,50 +164,67 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         }
         return node;
     }
-
-    private Set<K> setHelper(BSTNode<K, V> node) {
+    private BSTNode<K, V> getMax(BSTNode<K, V> node) {
         if (node == null) {
-            return new HashSet<K>();
+            return null;
         }
-        Set<K> m = new HashSet<>();
-        m.add(node.key);
+        while (node.right != null) {
+            node = node.right;
+        }
+        return node;
+    }
+    public V remove(K key) {
+        BSTNode<K, V> node = containsHelper(key, root);
+        if (node == null) {
+            return null;
+        }
+        //No leaf
         if (node.left == null && node.right == null) {
-            return m;
+            if (node.parent == null) {
+                node = null;
+            }
+            else if (node.parent.left.equals(node)) {
+                node.parent.left = null;
+            }
+            else if (node.parent.right.equals(node)) {
+                node.parent.right = null;
+            }
+            size -= 1;
+            return node.value;
         }
-        else if (node.left != null && node.right == null) {
-            Set<K> l = setHelper(node.left);
-            l.addAll(m);
-            return l;
-        }
-        else if (node.left == null && node.right != null) {
-            Set<K> r = setHelper(node.right);
-            m.addAll(r);
-            return m;
+        //Has leaves
+        BSTNode<K, V> next = getMin(node.right);
+        BSTNode<K, V> prev = getMax(node.left);
+        if (next == null) {
+            prev.parent.right = null;
+            node.value = prev.value;
+            node.key = prev.key;
         }
         else {
-            Set<K> l = setHelper(node.left);
-            Set<K> r = setHelper(node.right);
-            l.addAll(m);
-            l.addAll(r);
-            return l;
+            next.parent.left = null;
+            node.value = next.value;
+            node.key = next.key;
         }
-    }
-    // Exception
-    public Set<K> keySet() {
-        return setHelper(root);
-    }
-
-    public V remove(K key) {
-        throw new UnsupportedOperationException();
+        size -= 1;
+        return node.value;
     }
 
     public V remove(K key, V value) {
-        throw new UnsupportedOperationException();
+        BSTNode<K, V> node = containsHelper(key, root);
+        if (node == null) {
+            return null;
+        }
+        else if (node.value.equals(value)) {
+            return remove(key);
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
     public Iterator<K> iterator() {
-        throw new UnsupportedOperationException();
+        return queueHelper(root).iterator();
     }
 }
 
