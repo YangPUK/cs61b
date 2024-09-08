@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.util.LinkedList;
-
+import edu.princeton.cs.algs4.StdRandom;
 /** Tests by Brendan Hu, Spring 2015, revised for 2016 by Josh Hug */
 public class TestBSTMap {
 
@@ -101,6 +101,27 @@ public class TestBSTMap {
           for (String key : b) {
               System.out.println(key);
           }
+    }
+
+    @Test
+    public void removeTst(){
+          BSTMap<Integer, Integer> b = new BSTMap<>();
+          int N = 100;
+          for (int i = 0; i < N; i++) {
+              int opNum = StdRandom.uniform(0,4);
+              switch (opNum) {
+                  case 0, 1, 2:
+                      int n1 = StdRandom.uniform(0,10);
+                      b.put(n1,n1);
+                      System.out.println("add: " + n1);
+                  case 3:
+                      int n2 = StdRandom.uniform(0, 10);
+                      b.remove(n2);
+                      System.out.println("remove: " + n2);
+              }
+          }
+        b.printInOrder();
+
     }
 
 }

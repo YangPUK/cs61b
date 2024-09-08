@@ -180,30 +180,48 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         }
         //No leaf
         if (node.left == null && node.right == null) {
-            if (node.parent == null) {
-                node = null;
-            }
-            else if (node.parent.left.equals(node)) {
+            if (node.parent.left == node) {
                 node.parent.left = null;
             }
-            else if (node.parent.right.equals(node)) {
+            else {
                 node.parent.right = null;
             }
-            size -= 1;
             return node.value;
         }
         //Has leaves
         BSTNode<K, V> next = getMin(node.right);
         BSTNode<K, V> prev = getMax(node.left);
         if (next == null) {
-            prev.parent.right = null;
-            node.value = prev.value;
+            if (prev.parent == node) {
+                node.left = prev.left;
+                if (node.left != null) {
+                    node.left.parent = node;
+                }
+            }
+            else {
+                prev.parent.right = prev.left;
+                if (prev.left != null) {
+                    prev.left.parent = prev.parent;
+                }
+            }
             node.key = prev.key;
+            node.value = prev.value;
         }
         else {
-            next.parent.left = null;
-            node.value = next.value;
+            if (next.parent == node) {
+                node.right = next.right;
+                if (next.right != null) {
+                    next.right.parent = node;
+                }
+            }
+            else {
+                next.parent.left = next.right;
+                if (next.right != null) {
+                    next.right.parent = next.parent;
+                }
+            }
             node.key = next.key;
+            node.value = next.value;
         }
         size -= 1;
         return node.value;
