@@ -51,6 +51,6 @@ public class MyHashMapTSBuckets<K extends Comparable<K>, V> extends MyHashMap<K,
         //
         // Remember, we had K extends Comparable<K> in our class header,
         // so we know the keys have implemented a compareTo method
-        return new TreeSet<>(Comparator.comparing(a -> a.key));
+        return new TreeSet<Node>(Comparator.comparing(a -> a.key));
     }
 }
