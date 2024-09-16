@@ -1,5 +1,6 @@
 package hashmap;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -27,12 +28,21 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     /* Instance Variables */
     private Collection<Node>[] buckets;
-    // You should probably define some more!
+    private int initialSize = 16;
+    private double LoadFactor = 0.75;
+    private int size = 16;
+
 
     /** Constructors */
-    public MyHashMap() { }
+    public MyHashMap() {
+        buckets = new Collection[initialSize];
+    }
 
-    public MyHashMap(int initialSize) { }
+    public MyHashMap(int initialSize) {
+        this.initialSize = initialSize;
+        buckets = new Collection[this.initialSize];
+        size = initialSize;
+    }
 
     /**
      * MyHashMap constructor that creates a backing array of initialSize.
@@ -41,7 +51,12 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * @param initialSize initial size of backing array
      * @param maxLoad maximum load factor
      */
-    public MyHashMap(int initialSize, double maxLoad) { }
+    public MyHashMap(int initialSize, double maxLoad) {
+        this.initialSize = initialSize;
+        this.LoadFactor = maxLoad;
+        buckets = new Collection[this.initialSize];
+        size = initialSize;
+    }
 
     /**
      * Returns a new node to be placed in a hash table bucket
@@ -87,5 +102,60 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     // TODO: Implement the methods of the Map61B Interface below
     // Your code won't compile until you do so!
+
+    @Override
+    public void clear() {
+        buckets = null;
+        initialSize = 16;
+        LoadFactor = 0.75;
+        size = 0;
+    }
+
+    private Node containsHelper(K key) {
+        for (Collection<Node> c : buckets) {
+            for (Node n : c) {
+                if (n.key.equals(key)) {
+                    return n;
+                }
+            }
+        }
+        return null;
+    }
+    @Override
+    public boolean containsKey(K key) {
+        if (containsHelper(key) == null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public V get(K key) {
+        Node node = containsHelper(key);
+        if (node == null) {
+            return null;
+        }
+        return node.value;
+    }
+
+    @Override
+    public int size() {
+        return size;
+    }
+
+    @Override
+    public void put(K key, V value) {
+        Node hasNode = containsHelper(key);
+        if (hasNode == null) {
+            int pos = key.hashCode()%initialSize;
+            buckets[pos].add(createNode(key, value));
+        }
+    }
+
+    @Override
+    public V remove(K key) {
+        throw new UnsupportedOperationException();
+    }
+
 
 }
