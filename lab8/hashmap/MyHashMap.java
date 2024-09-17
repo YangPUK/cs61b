@@ -36,14 +36,12 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     /** Constructors */
     public MyHashMap() {
         buckets = createTable(initialSize);
-        bucketHelper(buckets);
         keysSet = new HashSet<>();
     }
 
     public MyHashMap(int initialSize) {
         this.initialSize = initialSize;
         buckets = createTable(initialSize);
-        bucketHelper(buckets);
         keysSet = new HashSet<>();
     }
 
@@ -64,7 +62,6 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         this.initialSize = initialSize;
         this.loadFactor = maxLoad;
         buckets = createTable(initialSize);
-        size = 0;
         keysSet = new HashSet();
     }
 
@@ -107,13 +104,14 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * @param tableSize the size of the table to create
      */
     private Collection<Node>[] createTable(int tableSize) {
-        return new Collection[tableSize];
+        Collection<Node>[] c = new Collection[tableSize];
+        bucketHelper(c);
+        return c;
     }
 
     @Override
     public void clear() {
         buckets = createTable(initialSize);
-        bucketHelper(buckets);
         size = 0;
         keysSet = new HashSet<>();
     }
@@ -153,7 +151,6 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     private void resize(int newSize) {
         initialSize = newSize;
         Collection<Node>[] newBuckets = createTable(initialSize);
-        bucketHelper(newBuckets);
         for (Collection<Node> bucket : buckets) {
             for (Node n : bucket) {
                 int pos = Math.floorMod(n.key.hashCode(), initialSize);
@@ -168,14 +165,13 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         Node hasNode = nodeFinder(key);
         if (hasNode == null) {
             if (initialSize * loadFactor <= size + 1) {
-                resize(2*initialSize);
+                resize(2 * initialSize);
             }
             int pos = Math.floorMod(key.hashCode(), initialSize);
             buckets[pos].add(createNode(key, value));
             keysSet.add(key);
             size++;
-        }
-        else {
+        } else {
             hasNode.value = value;
         }
     }
@@ -190,19 +186,19 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         return keysSet;
     }
 
-    private class myNode {
+    private class MyNode {
         Node thatNode;
         int posI;
-        public myNode(int pos, Node n) {
+        MyNode(int pos, Node n) {
             thatNode = n;
             this.posI = pos;
         }
     }
-    private myNode removeHelper(K key) {
+    private MyNode removeHelper(K key) {
         for (int i = 0; i < buckets.length; i++) {
             for (Node n : buckets[i]) {
                 if (n.key.equals(key)) {
-                    myNode pos = new myNode(i, n);
+                    MyNode pos = new MyNode(i, n);
                     return pos;
                 }
             }
@@ -211,11 +207,10 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     }
     @Override
     public V remove(K key) {
-        myNode n = removeHelper(key);
+        MyNode n = removeHelper(key);
         if (n == null) {
             return null;
-        }
-        else {
+        } else {
             V res = n.thatNode.value;
             buckets[n.posI].remove(n.thatNode);
             size--;
