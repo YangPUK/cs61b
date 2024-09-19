@@ -30,8 +30,9 @@ public class Main {
                 validateNumArgs("commit", args, 2);
                 Commit.mCommit(args[1]);
                 break;
+            default:
+                Utils.exitWithError("No command with that name exists.");
         }
-        Utils.exitWithError("No command with that name exists");
     }
 
     private static void needInit() {

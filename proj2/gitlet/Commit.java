@@ -41,9 +41,10 @@ public class Commit {
         timeStamp.format("%1$ta %1$tb %1$te %1$tH:%1$tM:%1$tS %1$tY ", new java.util.Date());
         msg = "Date: " + timeStamp.toString() + "\n" + msg;
         String hash = sha1(msg);
-        msg = "Commit: " + hash + "\n" + msg;
+        msg = "commit " + hash + "\n" + msg;
         msg = "===\n" + msg + "\n\n";
-        writeContents(Repository.commits, msg + history);
+        StringBuilder res = new StringBuilder().append(msg).append(history);
+        writeContents(Repository.commits, res.toString());
     }
 
     //make a merge commit.

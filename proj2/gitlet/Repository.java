@@ -23,7 +23,7 @@ public class Repository {
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
-    public static final File GITLET_DIR = join(CWD, ".gitlet");
+    public static final File GITLET_DIR = join(CWD, ".gitlets");
     public static final File LOGS_DIR = join(GITLET_DIR, "logs");
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
     public static final File BLOBS = join(BLOBS_DIR, "blob");
@@ -47,6 +47,7 @@ public class Repository {
     //Add command.
     public static void addFiles(String fileName) {
         File file = join(BLOBS_DIR, fileName);
+
     }
 }
 
