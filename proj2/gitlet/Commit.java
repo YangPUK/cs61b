@@ -26,12 +26,14 @@ public class Commit {
 
     /* TODO: fill in the rest of this class. */
     // Init inital commit.
-    public static void setup(String msg){
-        msg = "Date: Wed Dec 31 16:00:00 1969 -0800\n" + msg;
+    public static void setup(){
+        String msg = "Date: Wed Dec 31 16:00:00 1969 -0800\n";
+        msg += "initial commit\n\n";
         String hash = sha1(msg);
         msg = "commit " + hash + "\n" + msg;
-        msg = "===\n" + msg + "\n\n";
+        msg += "===\n";
         writeContents(Repository.commits, msg);
+        Repository.record(hash);
     }
 
     //Make a usual commit.
@@ -45,6 +47,7 @@ public class Commit {
         msg = "===\n" + msg + "\n\n";
         StringBuilder res = new StringBuilder().append(msg).append(history);
         writeContents(Repository.commits, res.toString());
+        Repository.record(hash);
     }
 
     //make a merge commit.
