@@ -33,7 +33,8 @@ public class Commit {
         msg = "commit " + hash + "\n" + msg;
         msg += "===\n";
         writeContents(Repository.commits, msg);
-        Repository.record(hash);
+        Info repoInfo = new Info();
+        repoInfo.record(hash);
     }
 
     //Make a usual commit.
@@ -47,7 +48,8 @@ public class Commit {
         msg = "===\n" + msg + "\n\n";
         StringBuilder res = new StringBuilder().append(msg).append(history);
         writeContents(Repository.commits, res.toString());
-        Repository.record(hash);
+        Info repoInfo = Info.loadInfo();
+        repoInfo.record(hash);
     }
 
     //make a merge commit.
