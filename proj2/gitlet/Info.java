@@ -12,6 +12,11 @@ public class Info implements Serializable {
     public LinkedList<Node> logsList = new LinkedList<>();
     public int size = 0;
     public HashMap<String, String> filesMap = new HashMap<>();
+    public LinkedList<String> Branches = new LinkedList<>();
+    public LinkedList<String> stagedFiles = new LinkedList<>();
+    public LinkedList<String> removedFiles = new LinkedList<>();
+
+
     public File current_DIR = join(Repository.BLOBS_DIR, String.valueOf(size));
     public static final File infoRoom = join(Repository.GITLET_DIR, "repo");
 
@@ -29,6 +34,7 @@ public class Info implements Serializable {
         if(!current_DIR.exists()) {
             current_DIR.mkdir();
         }
+        Branches.add("*master");
     }
 
     public void saveInfo() {
@@ -45,6 +51,25 @@ public class Info implements Serializable {
         size++;
         current_DIR = join(Repository.BLOBS_DIR, String.valueOf(size));
         current_DIR.mkdir();
+        clear();
         this.saveInfo();
+    }
+
+    public void clear() {
+        stagedFiles.clear();
+        removedFiles.clear();
+    }
+
+    public void addFile(String fileName, String location) {
+        stagedFiles.add(fileName);
+        filesMap.put(fileName, location);
+    }
+
+    public void removeFile(String fileName) {
+        removedFiles.add(fileName);
+    }
+
+    public void showStatus(){
+        System.out.println("silly");
     }
 }

@@ -67,23 +67,23 @@ public class Repository {
         Info repoInfo = Info.loadInfo();
         File addedFile = join(CWD,fileName);
         File storeFile = join(repoInfo.current_DIR, fileName);
-        System.out.println(repoInfo.current_DIR.toString());
+//        System.out.println(repoInfo.current_DIR.toString());
         if(!addedFile.exists()) {
             exitWithError("File does not exist.");
         }
         if (!repoInfo.filesMap.containsKey(fileName)) {
             writeContents(storeFile, readContents(addedFile));
-            repoInfo.filesMap.put(fileName, storeFile.toString());
+            repoInfo.addFile(fileName, storeFile.toString());
             repoInfo.saveInfo();
             return;
         }
         File existFile = new File(repoInfo.filesMap.get(fileName));
-        System.out.println(existFile);
-        System.out.println(addedFile);
+//        System.out.println(existFile);
+//        System.out.println(addedFile);
         if (!readContentsAsString(addedFile).equals(readContentsAsString(existFile))) {
             System.out.println("True");
             writeContents(storeFile, readContents(addedFile));
-            repoInfo.filesMap.put(fileName, storeFile.toString());
+            repoInfo.addFile(fileName, storeFile.toString());
             repoInfo.saveInfo();
         }
     }
