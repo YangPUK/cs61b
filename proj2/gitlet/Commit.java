@@ -31,7 +31,7 @@ public class Commit {
         msg += "initial commit\n\n";
         String hash = sha1(msg);
         msg = "commit " + hash + "\n" + msg;
-        msg += "===\n";
+        msg = "===\n" + msg;
         writeContents(Repository.commits, msg);
         Info repoInfo = new Info();
         repoInfo.record(hash);
@@ -54,5 +54,9 @@ public class Commit {
 
     //make a merge commit.
     public static void mergeCommit(String msg) {}
+
+    public static void showLog() {
+        System.out.println(readContentsAsString(Repository.commits));
+    }
 }
 

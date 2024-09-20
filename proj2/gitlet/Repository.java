@@ -73,13 +73,18 @@ public class Repository {
         }
         if (!repoInfo.filesMap.containsKey(fileName)) {
             writeContents(storeFile, readContents(addedFile));
-            repoInfo.filesMap.put(fileName, String.valueOf(repoInfo.size));
+            repoInfo.filesMap.put(fileName, storeFile.toString());
+            repoInfo.saveInfo();
             return;
         }
-        File existFile = join(BLOBS_DIR, repoInfo.filesMap.get(fileName));
-        if (readContents(addedFile).hashCode() != readContents(existFile).hashCode()) {
+        File existFile = new File(repoInfo.filesMap.get(fileName));
+        System.out.println(existFile);
+        System.out.println(addedFile);
+        if (!readContentsAsString(addedFile).equals(readContentsAsString(existFile))) {
+            System.out.println("True");
             writeContents(storeFile, readContents(addedFile));
-            repoInfo.filesMap.put(fileName, String.valueOf(repoInfo.size));
+            repoInfo.filesMap.put(fileName, storeFile.toString());
+            repoInfo.saveInfo();
         }
     }
 }

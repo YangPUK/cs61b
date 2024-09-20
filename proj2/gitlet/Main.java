@@ -30,6 +30,11 @@ public class Main {
                 validateNumArgs("commit", args, 2);
                 Commit.mCommit(args[1]);
                 break;
+            case "log":
+                needInit();
+                validateNumArgs("log", args, 1);
+                Commit.showLog();
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
         }
