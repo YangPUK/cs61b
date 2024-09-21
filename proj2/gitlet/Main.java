@@ -40,6 +40,11 @@ public class Main {
                 validateNumArgs("log", args, 1);
                 Commit.showLog();
                 break;
+            case "log-global":
+                needInit();
+                validateNumArgs("log-global", args, 1);
+                Info.globalLog();
+                break;
             case "status":
                 needInit();
                 validateNumArgs("status", args, 1);
@@ -54,6 +59,11 @@ public class Main {
                 needInit();
                 validateNumArgs("rm-branch", args, 2);
                 Info.rmBranch(args[1]);
+            case "find":
+                needInit();
+                validateNumArgs("find", args, 2);
+                Info.find(args[1]);
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
         }

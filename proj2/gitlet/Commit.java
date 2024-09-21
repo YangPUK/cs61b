@@ -3,6 +3,7 @@ package gitlet;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -41,8 +42,8 @@ public class Commit {
     //Make a usual commit.
     public static void mCommit(String msg) {
         String commit = msg;
-        Info repoInfo = Info.loadInfo();
-        String branch = repoInfo.getHeadBranch();
+        Info info = Info.loadInfo();
+        String branch = info.getHead();
         String history = readContentsAsString(join(Repository.LOGS_DIR, branch));
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         String timeStamp = sdf.format(new Date());
@@ -52,14 +53,18 @@ public class Commit {
         msg = "===\n" + msg + "\n\n";
         StringBuilder res = new StringBuilder().append(msg).append(history);
         writeContents(join(Repository.LOGS_DIR, branch), res.toString());
-        repoInfo.record(hash, commit, branch);
+        info.record(hash, commit, branch);
     }
 
     //make a merge commit.
     public static void mergeCommit(String msg) {}
 
     public static void showLog() {
-        System.out.println(readContentsAsString(Repository.master));
+        Info info = Info.loadInfo();
+        File head = join(Repository.LOGS_DIR ,info.getHead());
+        System.out.println(readContentsAsString(head));
     }
+
+
 }
 

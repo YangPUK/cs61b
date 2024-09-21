@@ -16,13 +16,12 @@ public class Info implements Serializable {
     public TreeSet<String> Branches = new TreeSet<>();
     public TreeSet<String> stagedFiles = new TreeSet<>();
     public TreeSet<String> removedFiles = new TreeSet<>();
-    private String headBranch;
-
+    private String head;
 
     public File current_DIR = join(Repository.BLOBS_DIR, String.valueOf(size));
     public static final File infoRoom = join(Repository.GITLET_DIR, "repo");
 
-    private static class Node implements Serializable {
+     private static class Node implements Serializable {
         String hash;
         String parent;
         String commit;
@@ -40,8 +39,8 @@ public class Info implements Serializable {
         if(!current_DIR.exists()) {
             current_DIR.mkdir();
         }
-        headBranch = "master";
-        Branches.add(headBranch);
+        head = "master";
+        Branches.add(head);
     }
 
     public void saveInfo() {
@@ -63,7 +62,7 @@ public class Info implements Serializable {
         pointerMap.put(branch, hash);
         Node node = new Node(hash, commit, parent, this.filesMap);
         branchList.addLast(node);
-        branchesMap.put(headBranch, branchList);
+        branchesMap.put(head, branchList);
         current_DIR.mkdir();
         for (String file : stagedFiles) {
             File addedFile = join(Repository.CWD, file);
@@ -156,7 +155,7 @@ public class Info implements Serializable {
         Info info = loadInfo();
         System.out.println("===Branches===\n");
         for(String branch : info.Branches){
-            if (branch.equals(info.headBranch)) {
+            if (branch.equals(info.head)) {
                 System.out.print("*");
             }
             System.out.println(branch);
@@ -171,8 +170,8 @@ public class Info implements Serializable {
         }
     }
 
-    public String getHeadBranch() {
-        return headBranch;
+    public String getHead() {
+        return head;
     }
 
     public static void creatBranch(String branch) {
@@ -180,21 +179,40 @@ public class Info implements Serializable {
         if (info.pointerMap.containsKey(branch)) {
             exitWithError("A branch with that name already exists.");
         }
+        File log  = join(Repository.LOGS_DIR, branch);
+        File history = join(Repository.LOGS_DIR, info.head);
+        writeContents(log, readContentsAsString(history));
         info.setPointer(branch, info.headHash());
-        info.headBranch = branch;
+        info.head = branch;
         info.saveInfo();
     }
 
     public static void rmBranch(String branch) {
         Info info = loadInfo();
-        if (!info.pointerMap.containsKey(branch)) {
+        if (!info.branchesMap.containsKey(branch)) {
             exitWithError("A branch with that name does not exists");
         }
-        if (info.headBranch.equals(branch)) {
+        if (info.head.equals(branch)) {
             exitWithError("Cannot remove the current branch.");
         }
         info.pointerMap.remove(branch);
         info.saveInfo();
+    }
+
+    public static void find(String msg) {
+        Info info = loadInfo();
+        boolean found = false;
+        for (LinkedList<Node> branchList : info.branchesMap.values()) {
+            for (Node node : branchList) {
+                if (node.commit.equals(msg)) {
+                    System.out.println(node.hash);
+                    found = true;
+                }
+            }
+        }
+        if (!found) {
+            exitWithError("Found no commit with that message");
+        }
     }
 
 
@@ -204,6 +222,6 @@ public class Info implements Serializable {
         pointerMap.put(branch, hash);
     }
     public String headHash() {
-        return pointerMap.get(headBranch);
+        return pointerMap.get(head);
     }
 }
