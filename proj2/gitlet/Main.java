@@ -23,7 +23,12 @@ public class Main {
             case "add":
                 needInit();
                 validateNumArgs("add", args, 2);
-                Repository.addFiles(args[1]);
+                Info.addFile(args[1]);
+                break;
+            case "rm":
+                needInit();
+                validateNumArgs("rm", args, 2);
+                Info.removeFile(args[1]);
                 break;
             case "commit":
                 needInit();
@@ -35,6 +40,12 @@ public class Main {
                 validateNumArgs("log", args, 1);
                 Commit.showLog();
                 break;
+            case "status":
+                needInit();
+                validateNumArgs("status", args, 1);
+                Info.showStatus();
+                break;
+
             default:
                 Utils.exitWithError("No command with that name exists.");
         }

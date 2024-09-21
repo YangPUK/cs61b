@@ -3,7 +3,8 @@ package gitlet;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
-import java.util.Formatter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -23,7 +24,6 @@ public class Commit {
     /** The message of this Commit. */
     private String message;
 
-
     /* TODO: fill in the rest of this class. */
     // Init inital commit.
     public static void setup(){
@@ -40,9 +40,9 @@ public class Commit {
     //Make a usual commit.
     public static void mCommit(String msg) {
         String history = readContentsAsString(Repository.commits);
-        Formatter timeStamp = new Formatter();
-        timeStamp.format("%1$ta %1$tb %1$te %1$tH:%1$tM:%1$tS %1$tY ", new java.util.Date());
-        msg = "Date: " + timeStamp.toString() + "\n" + msg;
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
+        String timeStamp = sdf.format(new Date());
+        msg = "Date: " + timeStamp + "\n" + msg;
         String hash = sha1(msg);
         msg = "commit " + hash + "\n" + msg;
         msg = "===\n" + msg + "\n\n";

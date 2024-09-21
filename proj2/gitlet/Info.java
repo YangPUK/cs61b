@@ -1,5 +1,7 @@
 package gitlet;
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -11,10 +13,11 @@ import static gitlet.Utils.*;
 public class Info implements Serializable {
     public LinkedList<Node> logsList = new LinkedList<>();
     public int size = 0;
-    public HashMap<String, String> filesMap = new HashMap<>();
+    public HashMap<File, File> filesMap = new HashMap<>();
     public LinkedList<String> Branches = new LinkedList<>();
     public LinkedList<String> stagedFiles = new LinkedList<>();
     public LinkedList<String> removedFiles = new LinkedList<>();
+    private LinkedList<String> stagedPaths = new LinkedList<>();
 
 
     public File current_DIR = join(Repository.BLOBS_DIR, String.valueOf(size));
@@ -22,9 +25,9 @@ public class Info implements Serializable {
 
     private static class Node implements Serializable {
         String hash;
-        HashMap<String, String> filesMap;
+        HashMap<File, File> filesMap;
 
-        public Node(String hash, HashMap<String, String> filesMap) {
+        public Node(String hash, HashMap<File, File> filesMap) {
             this.hash = hash;
             this.filesMap = filesMap;
         }
@@ -48,9 +51,14 @@ public class Info implements Serializable {
     public void record(String hash) {
         Node node = new Node(hash, filesMap);
         logsList.add(node);
+        current_DIR.mkdir();
+        for (String file : stagedPaths) {
+            File addedFile = join(Repository.CWD, file);
+            File storeFile = filesMap.get(addedFile);
+            writeContents(storeFile, readContents(addedFile));
+        }
         size++;
         current_DIR = join(Repository.BLOBS_DIR, String.valueOf(size));
-        current_DIR.mkdir();
         clear();
         this.saveInfo();
     }
@@ -60,16 +68,64 @@ public class Info implements Serializable {
         removedFiles.clear();
     }
 
-    public void addFile(String fileName, String location) {
-        stagedFiles.add(fileName);
-        filesMap.put(fileName, location);
+    public static void addFile(String fileName) {
+        Info info = loadInfo();
+        File addedFile = join(Repository.CWD, fileName);
+        File storeFile = join(info.current_DIR, fileName);
+        if (!addedFile.exists()) {
+            exitWithError("File does not exist.");
+        }
+        // File not in files map.
+        else if (!info.filesMap.containsKey(addedFile)) {
+            info.stagedFiles.add(fileName);
+            info.filesMap.put(addedFile, storeFile);
+        }
+        // Already staged.
+        else if (info.stagedFiles.contains(fileName)) {
+            return;
+        }
+        // Not satged.
+        File oddFile = info.filesMap.get(fileName);
+        String addedContent = readContentsAsString(addedFile);
+        if (!readContentsAsString(oddFile).equals(addedContent)) {
+            info.stagedFiles.add(fileName);
+            info.filesMap.put(addedFile, storeFile);
+        }
     }
 
-    public void removeFile(String fileName) {
-        removedFiles.add(fileName);
+    public static void removeFile(String fileName) {
+        Info info = loadInfo();
+        File removedFile = join(Repository.CWD, fileName);
+        // Staged.
+        if (info.stagedFiles.contains(fileName)) {
+            info.stagedFiles.remove(fileName);
+        }
+        // Not Staged, but tracked.
+        else if (info.filesMap.containsKey(removedFile)) {
+            info.filesMap.remove(removedFile);
+            info.removedFiles.add(fileName);
+            // Delete the file.
+            if (removedFile.exists()) {
+                restrictedDelete(removedFile);
+            }
+        } else {
+            exitWithError("No reason to remove the file.");
+        }
     }
 
-    public void showStatus(){
-        System.out.println("silly");
+    public static void showStatus(){
+        Info info = loadInfo();
+        System.out.println("===Branches===\n");
+        for(String branch : info.Branches){
+            System.out.println(branch);
+        }
+        System.out.println("\n===stagedFiles===\n");
+        for(String stagedFile : info.stagedFiles){
+            System.out.println(stagedFile);
+        }
+        System.out.println("\n===removedFiles===\n");
+        for(String removedFile : info.removedFiles){
+            System.out.println(removedFile);
+        }
     }
 }
