@@ -16,7 +16,6 @@ public class BranchLogs implements Serializable {
 
     private static class Node implements Serializable {
         String hash;
-//        String parent;
         String message;
         String timeStamp;
         TreeMap<File, File> filesMap;
@@ -25,7 +24,6 @@ public class BranchLogs implements Serializable {
             this.hash = hash;
             this.message = message;
             this.timeStamp = timeStamp;
-//            this.parent = parent;
             this.filesMap = filesMap;
         }
     }

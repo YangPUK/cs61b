@@ -29,31 +29,38 @@ public class Commit {
     // Init inital commit.
     public static void setup(){
         BranchLogs masterBranch = new BranchLogs("master", null, null);
+        masterBranch.saveBranch();
         String message = "initial commit";
         String timeStamp = "Date: Wed Dec 31 16:00:00 1969 -0800";
         String hash = sha1(timeStamp, message);
-        Repository repository = new Repository();
-        repository.record(hash, message, timeStamp);
+        Repository repo = new Repository();
+        repo.record(hash, message, timeStamp);
     }
 
     //Make a usual commit.
     public static void makeCommit(String message) {
-        Repository repositorys = new Repository();
+        Repository repo = new Repository();
         String commit = message;
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         String timeStamp = sdf.format(new Date());
-        String hash = sha1(message, sdf, repositorys.filesMap);
-        repositorys.record(hash, commit, timeStamp);
+        String hash = sha1(message, sdf, repo.filesMap);
+        repo.record(hash, commit, timeStamp);
     }
 
     //make a merge commit.
     public static void mergeCommit(String msg) {}
 
     public static void showLogs() {
-        Repository repository = new Repository();
-        String head = repository.head;
+        Repository repo = Repository.loadRepo();
+        String head = repo.head;
+        BranchLogs masterBranch = BranchLogs.readMaster();
+        if (head.equals("master")) {
+            masterBranch.showLogs();
+            return;
+        }
         BranchLogs headBranch = BranchLogs.readBranch(head);
         headBranch.showLogs();
+        masterBranch.showLogs();
     }
 
     public static void showGlobalLogs() {

@@ -59,6 +59,7 @@ public class Repository implements Serializable {
     public Repository() {
         branchesPMap = new TreeMap<>();
         branchesPMap.put("master", null);
+        head = "master";
         filesMap = new TreeMap<>();
     }
 
