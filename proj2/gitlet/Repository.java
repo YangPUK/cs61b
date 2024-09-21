@@ -1,8 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.util.LinkedList;
-import java.util.HashMap;
 
 import static gitlet.Utils.*;
 
@@ -28,18 +26,8 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlets");
     public static final File LOGS_DIR = join(GITLET_DIR, "logs");
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
-    public static final File commits = join(LOGS_DIR, "commits");
+    public static final File master = join(LOGS_DIR, "master");
 
-//    private static class Node {
-//        String hash;
-//        HashMap<String, String> filesMap;
-//
-//        public Node(String hash, HashMap<String, String> filesMap) {
-//            this.hash = hash;
-//            this.filesMap = filesMap;
-//        }
-//    }
-    //Init command.
     public static void setupPeresitence() {
         if (!GITLET_DIR.exists()) {
             GITLET_DIR.mkdir();
@@ -52,37 +40,5 @@ public class Repository {
             exitWithError("A Gitlet version-control system already exists in the current directory.");
         }
     }
-
-//    private void saveRepo() {
-//        writeObject(repoRoom, this);
-//    }
-//
-//    private static Repository loadRepo() {
-//        return readObject(repoRoom, Repository.class);
-//    }
-
-
-    //Add command.
-//    public static void addFiles(String fileName) {
-//        Info repoInfo = Info.loadInfo();
-//        File addedFile = join(CWD, fileName);
-////        System.out.println(repoInfo.current_DIR.toString());
-//        if(!addedFile.exists()) {
-//            exitWithError("File does not exist.");
-//        }
-//        if (!repoInfo.filesMap.containsKey(fileName)) {
-//            repoInfo.addFile(fileName, storeFile.toString());
-//            repoInfo.saveInfo();
-//            return;
-//        }
-//        File existFile = new File(repoInfo.filesMap.get(fileName));
-////        System.out.println(existFile);
-////        System.out.println(addedFile);
-//        if (!readContentsAsString(addedFile).equals(readContentsAsString(existFile))) {
-////            System.out.println("True");
-//            repoInfo.addFile(fileName, storeFile.toString());
-//            repoInfo.saveInfo();
-//        }
-//    }
 }
 

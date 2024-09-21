@@ -45,7 +45,15 @@ public class Main {
                 validateNumArgs("status", args, 1);
                 Info.showStatus();
                 break;
-
+            case "branch":
+                needInit();
+                validateNumArgs("branch", args, 2);
+                Info.creatBranch(args[1]);
+                break;
+            case "rm-branch":
+                needInit();
+                validateNumArgs("rm-branch", args, 2);
+                Info.rmBranch(args[1]);
             default:
                 Utils.exitWithError("No command with that name exists.");
         }

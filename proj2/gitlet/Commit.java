@@ -32,14 +32,18 @@ public class Commit {
         String hash = sha1(msg);
         msg = "commit " + hash + "\n" + msg;
         msg = "===\n" + msg;
-        writeContents(Repository.commits, msg);
+        writeContents(Repository.master, msg);
         Info repoInfo = new Info();
-        repoInfo.record(hash);
+        repoInfo.setPointer("master", hash);
+        repoInfo.record(hash, "initial commit", "master");
     }
 
     //Make a usual commit.
     public static void mCommit(String msg) {
-        String history = readContentsAsString(Repository.commits);
+        String commit = msg;
+        Info repoInfo = Info.loadInfo();
+        String branch = repoInfo.getHeadBranch();
+        String history = readContentsAsString(join(Repository.LOGS_DIR, branch));
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         String timeStamp = sdf.format(new Date());
         msg = "Date: " + timeStamp + "\n" + msg;
@@ -47,16 +51,15 @@ public class Commit {
         msg = "commit " + hash + "\n" + msg;
         msg = "===\n" + msg + "\n\n";
         StringBuilder res = new StringBuilder().append(msg).append(history);
-        writeContents(Repository.commits, res.toString());
-        Info repoInfo = Info.loadInfo();
-        repoInfo.record(hash);
+        writeContents(join(Repository.LOGS_DIR, branch), res.toString());
+        repoInfo.record(hash, commit, branch);
     }
 
     //make a merge commit.
     public static void mergeCommit(String msg) {}
 
     public static void showLog() {
-        System.out.println(readContentsAsString(Repository.commits));
+        System.out.println(readContentsAsString(Repository.master));
     }
 }
 
