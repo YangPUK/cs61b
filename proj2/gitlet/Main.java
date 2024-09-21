@@ -23,46 +23,46 @@ public class Main {
             case "add":
                 needInit();
                 validateNumArgs("add", args, 2);
-                Info.addFile(args[1]);
+                Repository.addFile(args[1]);
                 break;
             case "rm":
                 needInit();
                 validateNumArgs("rm", args, 2);
-                Info.removeFile(args[1]);
+                Repository.removeFile(args[1]);
                 break;
             case "commit":
                 needInit();
                 validateNumArgs("commit", args, 2);
-                Commit.mCommit(args[1]);
+                Commit.makeCommit(args[1]);
                 break;
             case "log":
                 needInit();
                 validateNumArgs("log", args, 1);
-                Commit.showLog();
+                Commit.showLogs();
                 break;
             case "log-global":
                 needInit();
                 validateNumArgs("log-global", args, 1);
-                Info.globalLog();
+                Commit.showGlobalLogs();
                 break;
             case "status":
                 needInit();
                 validateNumArgs("status", args, 1);
-                Info.showStatus();
+                Repository.showStatus();
                 break;
             case "branch":
                 needInit();
                 validateNumArgs("branch", args, 2);
-                Info.creatBranch(args[1]);
+                Repository.creatBranch(args[1]);
                 break;
             case "rm-branch":
                 needInit();
                 validateNumArgs("rm-branch", args, 2);
-                Info.rmBranch(args[1]);
+                Repository.rmBranch(args[1]);
             case "find":
                 needInit();
                 validateNumArgs("find", args, 2);
-                Info.find(args[1]);
+                BranchLogs.find(args[1]);
                 break;
             default:
                 Utils.exitWithError("No command with that name exists.");
@@ -84,7 +84,8 @@ public class Main {
                 break;
             case "whatever":
                 if (args.length < n) {
-                    Utils.exitWithError("Incorrect operands.");
+                    Utils.
+                            exitWithError("Incorrect operands.");
                 }
                 break;
         }

@@ -3,9 +3,9 @@ package gitlet;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -28,41 +28,40 @@ public class Commit {
     /* TODO: fill in the rest of this class. */
     // Init inital commit.
     public static void setup(){
-        String msg = "Date: Wed Dec 31 16:00:00 1969 -0800\n";
-        msg += "initial commit\n\n";
-        String hash = sha1(msg);
-        msg = "commit " + hash + "\n" + msg;
-        msg = "===\n" + msg;
-        writeContents(Repository.master, msg);
-        Info repoInfo = new Info();
-        repoInfo.setPointer("master", hash);
-        repoInfo.record(hash, "initial commit", "master");
+        BranchLogs masterBranch = new BranchLogs("master", null, null);
+        String message = "initial commit";
+        String timeStamp = "Date: Wed Dec 31 16:00:00 1969 -0800";
+        String hash = sha1(timeStamp, message);
+        Repository repository = new Repository();
+        repository.record(hash, message, timeStamp);
     }
 
     //Make a usual commit.
-    public static void mCommit(String msg) {
-        String commit = msg;
-        Info info = Info.loadInfo();
-        String branch = info.getHead();
-        String history = readContentsAsString(join(Repository.LOGS_DIR, branch));
+    public static void makeCommit(String message) {
+        Repository repositorys = new Repository();
+        String commit = message;
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         String timeStamp = sdf.format(new Date());
-        msg = "Date: " + timeStamp + "\n" + msg;
-        String hash = sha1(msg);
-        msg = "commit " + hash + "\n" + msg;
-        msg = "===\n" + msg + "\n\n";
-        StringBuilder res = new StringBuilder().append(msg).append(history);
-        writeContents(join(Repository.LOGS_DIR, branch), res.toString());
-        info.record(hash, commit, branch);
+        String hash = sha1(message, sdf, repositorys.filesMap);
+        repositorys.record(hash, commit, timeStamp);
     }
 
     //make a merge commit.
     public static void mergeCommit(String msg) {}
 
-    public static void showLog() {
-        Info info = Info.loadInfo();
-        File head = join(Repository.LOGS_DIR ,info.getHead());
-        System.out.println(readContentsAsString(head));
+    public static void showLogs() {
+        Repository repository = new Repository();
+        String head = repository.head;
+        BranchLogs headBranch = BranchLogs.readBranch(head);
+        headBranch.showLogs();
+    }
+
+    public static void showGlobalLogs() {
+        List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
+        for (String branch : branches) {
+            BranchLogs branchLogs = BranchLogs.readBranch(branch);
+            branchLogs.showLogs();
+        }
     }
 
 
