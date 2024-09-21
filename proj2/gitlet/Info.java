@@ -1,13 +1,10 @@
 package gitlet;
 
-import org.checkerframework.checker.units.qual.A;
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import static gitlet.Utils.join;
 import static gitlet.Utils.*;
 
 public class Info implements Serializable {
@@ -17,7 +14,6 @@ public class Info implements Serializable {
     public LinkedList<String> Branches = new LinkedList<>();
     public LinkedList<String> stagedFiles = new LinkedList<>();
     public LinkedList<String> removedFiles = new LinkedList<>();
-    private LinkedList<String> stagedPaths = new LinkedList<>();
 
 
     public File current_DIR = join(Repository.BLOBS_DIR, String.valueOf(size));
@@ -52,9 +48,13 @@ public class Info implements Serializable {
         Node node = new Node(hash, filesMap);
         logsList.add(node);
         current_DIR.mkdir();
-        for (String file : stagedPaths) {
+        for (String file : stagedFiles) {
             File addedFile = join(Repository.CWD, file);
             File storeFile = filesMap.get(addedFile);
+            File parentDIR = storeFile.getParentFile();
+            if (!parentDIR.exists()) {
+                parentDIR.mkdirs();
+            }
             writeContents(storeFile, readContents(addedFile));
         }
         size++;
@@ -79,26 +79,36 @@ public class Info implements Serializable {
         else if (!info.filesMap.containsKey(addedFile)) {
             info.stagedFiles.add(fileName);
             info.filesMap.put(addedFile, storeFile);
+            info.saveInfo();
+            return;
         }
         // Already staged.
         else if (info.stagedFiles.contains(fileName)) {
             return;
         }
         // Not satged.
-        File oddFile = info.filesMap.get(fileName);
+        File oddFile = info.filesMap.get(addedFile);
         String addedContent = readContentsAsString(addedFile);
         if (!readContentsAsString(oddFile).equals(addedContent)) {
             info.stagedFiles.add(fileName);
             info.filesMap.put(addedFile, storeFile);
+            info.saveInfo();
+            return;
         }
     }
 
     public static void removeFile(String fileName) {
         Info info = loadInfo();
         File removedFile = join(Repository.CWD, fileName);
+        if (!removedFile.exists()) {
+            exitWithError("File does not exist.");
+        }
         // Staged.
         if (info.stagedFiles.contains(fileName)) {
             info.stagedFiles.remove(fileName);
+            info.filesMap.remove(removedFile);
+            info.saveInfo();
+            return;
         }
         // Not Staged, but tracked.
         else if (info.filesMap.containsKey(removedFile)) {
@@ -108,6 +118,8 @@ public class Info implements Serializable {
             if (removedFile.exists()) {
                 restrictedDelete(removedFile);
             }
+            info.saveInfo();
+            return;
         } else {
             exitWithError("No reason to remove the file.");
         }
