@@ -42,6 +42,7 @@ public class Repository implements Serializable {
     public TreeSet<String> stagedFiles = new TreeSet<>();
     public TreeSet<String> removedFiles = new TreeSet<>();
     public TreeSet<String> mergeStagedFiles = new TreeSet<>();
+    public String workingBranch;
     public String head;
     public static final File repoRoom = join(Repository.GITLET_DIR, "repo");
 
@@ -59,6 +60,7 @@ public class Repository implements Serializable {
     public Repository() {
         branchesPMap = new TreeMap<>();
         branchesPMap.put("master", null);
+        workingBranch = "master";
         head = "master";
         filesMap = new TreeMap<>();
     }
@@ -72,7 +74,7 @@ public class Repository implements Serializable {
     }
 
     public void record(String hash, String message, String timeStamp) {
-        BranchLogs headBranch = readObject(join(LOGS_DIR, head), BranchLogs.class);
+        BranchLogs headBranch = readObject(join(LOGS_DIR, workingBranch), BranchLogs.class);
         for (String file : stagedFiles) {
             File addedFile = join(CWD, file);
             String fileHash = sha1(readContents(addedFile));
@@ -89,7 +91,7 @@ public class Repository implements Serializable {
             }
         }
         headBranch.add(hash, message, timeStamp, filesMap);
-        branchesPMap.put(head, hash);
+        branchesPMap.put(workingBranch, hash);
         clear();
         headBranch.saveBranch();
         this.saveRepo();
@@ -170,7 +172,7 @@ public class Repository implements Serializable {
         Repository repo = loadRepo();
         System.out.println("===Branches===");
         for(String branch : repo.branchesPMap.keySet()){
-            if (branch.equals(repo.head)) {
+            if (branch.equals(repo.workingBranch)) {
                 System.out.print("*");
             }
             System.out.println(branch);
@@ -185,7 +187,6 @@ public class Repository implements Serializable {
         }
         System.out.println("\n=== Modifications Not Staged For Commit ===");
         System.out.println("\n=== Untracked Files ===");
-
     }
 
     public static void createBranch(String branch) {
@@ -194,15 +195,15 @@ public class Repository implements Serializable {
             exitWithError("A branch with that name already exists.");
         }
         repo.setPointer(branch, repo.headHash());
-        BranchLogs branchLogs = new BranchLogs(branch, repo.head, repo.headHash());
-        repo.head = branch;
+        BranchLogs branchLogs = new BranchLogs(branch, repo.workingBranch, repo.headHash());
+        repo.workingBranch = branch;
         branchLogs.saveBranch();
         repo.saveRepo();
     }
 
     public static void rmBranch(String branch) {
         Repository repo = loadRepo();
-        if (repo.head.equals(branch) || branch.equals("master")) {
+        if (repo.workingBranch.equals(branch) || branch.equals("master")) {
             exitWithError("Cannot remove the current branch.");
         }
         else if (!repo.branchesPMap.containsKey(branch)) {
@@ -215,7 +216,7 @@ public class Repository implements Serializable {
     public static void mergeBranch(String branch) {
         Repository repo = loadRepo();
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
-        BranchLogs currBranchLogs = BranchLogs.readBranch(repo.head);
+        BranchLogs currBranchLogs = BranchLogs.readBranch(repo.workingBranch);
         if (currBranchLogs.contains(repo.branchesPMap.get(branch))) {
             System.out.println("Given branch is an ancestor of" +
                     " the current branch.");
@@ -293,7 +294,7 @@ public class Repository implements Serializable {
 
     public static void checkoutBranch(String branch) {
         Repository repo = loadRepo();
-        if (repo.head.equals(branch)) {
+        if (repo.workingBranch.equals(branch)) {
             exitWithError("No need to checkout the current branch.");
         }
         BranchLogs branchLogs = BranchLogs.readBranch(branch);
@@ -312,9 +313,13 @@ public class Repository implements Serializable {
             writeContents(file, readContents(filesMap.get(file)));
         }
         repo.clear();
-        repo.head = branch;
+        repo.workingBranch = branch;
         repo.filesMap = filesMap;
         repo.saveRepo();
+    }
+
+    public static void reset(String commitHash) {
+        BranchLogs.findBranchLogs(commitHash);
     }
 
     //When create a new branch, set a new pointer in the pointerMap.
@@ -322,7 +327,7 @@ public class Repository implements Serializable {
         branchesPMap.put(branch, hash);
     }
     public String headHash() {
-        return branchesPMap.get(head);
+        return branchesPMap.get(workingBranch);
     }
 }
 

@@ -43,7 +43,7 @@ public class Commit {
         if (repo.stagedFiles.size() == 0 &&
                 repo.removedFiles.size() == 0) {
             exitWithError("No changes added to the commit");
-        } else if (message == "") {
+        } else if (message.isBlank()) {
             exitWithError("Please enter a commit message.");
         }
         String commit = message;
@@ -58,7 +58,7 @@ public class Commit {
 
     public static void showLogs() {
         Repository repo = Repository.loadRepo();
-        String head = repo.head;
+        String head = repo.workingBranch;
         BranchLogs masterBranch = BranchLogs.readMaster();
         if (head.equals("master")) {
             masterBranch.showLogs();

@@ -40,7 +40,7 @@ public class Main {
                 validateNumArgs("log", args, 1);
                 Commit.showLogs();
                 break;
-            case "log-global":
+            case "global-log":
                 needInit();
                 validateNumArgs("log-global", args, 1);
                 Commit.showGlobalLogs();
@@ -87,6 +87,11 @@ public class Main {
                         Repository.checkout(args[1], args[3]);
                     }
                 }
+                break;
+            case "reset":
+                needInit();
+                validateNumArgs("reset", args, 2);
+                Repository.reset(args[1]);
                 break;
             case "merge":
                 needInit();
