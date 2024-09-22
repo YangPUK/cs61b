@@ -13,6 +13,8 @@ public class BranchLogs implements Serializable {
     private File room = Repository.LOGS_DIR;
     public String parentBranch;
     public String parentHash;
+//    public String headHash;
+    public TreeMap<File, File> headMap;
 
     public static class Node implements Serializable {
         public String hash;
@@ -28,9 +30,15 @@ public class BranchLogs implements Serializable {
         }
     }
 
-    public BranchLogs(String branch, String parentBranch, String parentHash) {
-        this.parentBranch = parentBranch;
-        this.parentHash = parentHash;
+    public BranchLogs (String branch) {
+        this.branch = branch;
+    }
+
+    public BranchLogs(String branch, Repository repo) {
+        this.parentBranch = repo.workingBranch;
+        this.parentHash = repo.workingHash();
+//        this.headHash = parentHash;
+        this.headMap = repo.filesMap;
         this.branch = branch;
         branchList = new LinkedList<>();
         this.room = join(room, branch);
@@ -39,6 +47,8 @@ public class BranchLogs implements Serializable {
     public void add(String hash, String message, String timeStamp, TreeMap<File, File> filesMap) {
         Node node = new Node(hash, message, timeStamp, filesMap);
         branchList.addFirst(node);
+//        headHash = hash;
+        headMap = filesMap;
     }
 
     public boolean contains(String hash) {
@@ -78,12 +88,15 @@ public class BranchLogs implements Serializable {
     }
 
     public static TreeMap<File, File> findBranchLogs(String hash) {
-        List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
-        for (String branch : branches) {
-            BranchLogs branchLogs = BranchLogs.readBranch(branch);
-            for (Node node : branchLogs.branchList) {
-                if (node.hash.equals(hash)) {
-                    return node.filesMap;
+        int n = hash.length();
+        if (n <= 40) {
+            List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
+            for (String branch : branches) {
+                BranchLogs branchLogs = BranchLogs.readBranch(branch);
+                for (Node node : branchLogs.branchList) {
+                    if (node.hash.substring(0, n - 1).equals(hash)) {
+                        return node.filesMap;
+                    }
                 }
             }
         }

@@ -25,7 +25,7 @@ public class Commit {
 
     // Init inital commit.
     public static void setup(){
-        BranchLogs masterBranch = new BranchLogs("master", null, null);
+        BranchLogs masterBranch = new BranchLogs("master");
         masterBranch.saveBranch();
         String message = "initial commit";
         String timeStamp = "Wed Dec 31 16:00:00 1969 -0800";

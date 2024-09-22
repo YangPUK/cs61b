@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.*;
 
 import static gitlet.Utils.*;
+import static gitlet.BranchLogs.*;
 
 /** Represents a gitlet repository.
  *  does at a high level.
@@ -33,7 +34,7 @@ public class Repository implements Serializable {
     public TreeSet<String> removedFiles = new TreeSet<>();
     public TreeSet<String> mergeStagedFiles = new TreeSet<>();
     public String workingBranch;
-    public String head;
+//    public String head;
     public static final File repoRoom = join(Repository.GITLET_DIR, "repo");
 
     public static void setupPeresitence() {
@@ -51,7 +52,7 @@ public class Repository implements Serializable {
         branchesPMap = new TreeMap<>();
         branchesPMap.put("master", null);
         workingBranch = "master";
-        head = "master";
+//        head = "master";
         filesMap = new TreeMap<>();
     }
 
@@ -105,12 +106,12 @@ public class Repository implements Serializable {
         if (!addedFile.exists()) {
             exitWithError("File does not exist.");
         }
-        //Staged
+        //Staged or removed.
         else if (repo.stagedFiles.contains(fileName)) {
             return;
         }
         // Not tracked.
-        if (!repo.filesMap.containsKey(addedFile)) {
+        else if (!repo.filesMap.containsKey(addedFile)) {
             // Remove and add the same file.
             if (repo.removedFiles.contains(fileName) &&
                     fileCompare(repo.filesMap.get(fileName), addedFile)) {
@@ -121,12 +122,15 @@ public class Repository implements Serializable {
             repo.saveRepo();
             return;
         }
-        // Already staged.
+        //Tracked
         File oddFile = repo.filesMap.get(addedFile);
         if (!fileCompare(oddFile, addedFile)) {
             repo.stagedFiles.add(fileName);
             repo.saveRepo();
-            return;
+        } else {
+            if (repo.removedFiles.contains(fileName)) {
+                repo.removedFiles.remove(fileName);
+            }
         }
     }
 
@@ -178,7 +182,7 @@ public class Repository implements Serializable {
             exitWithError("A branch with that name already exists.");
         }
         repo.setPointer(branch, repo.workingHash());
-        BranchLogs branchLogs = new BranchLogs(branch, repo.workingBranch, repo.workingHash());
+        BranchLogs branchLogs = new BranchLogs(branch, repo);
         branchLogs.saveBranch();
         repo.saveRepo();
     }
@@ -276,20 +280,25 @@ public class Repository implements Serializable {
         if (repo.workingBranch.equals(branch)) {
             exitWithError("No need to checkout the current branch.");
         }
-        BranchLogs branchLogs = BranchLogs.readBranch(branch);
-        TreeMap<File, File> branchFilesMap = branchLogs.branchList.getFirst().filesMap;
+        TreeMap<File, File> branchFilesMap = findBranchLogs(repo.branchesPMap.get(branch));
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
-            File existFile = join(CWD, fileName);
-            if (repo.stagedFiles.contains(existFile) ||
-                    (!repo.filesMap.containsKey(existFile) &&
-                    branchFilesMap.containsKey(existFile)) ) {
+            File file = join(CWD, fileName);
+            if (repo.stagedFiles.contains(file) ||
+                    (!repo.filesMap.containsKey(file) &&
+                    branchFilesMap.containsKey(file)) ) {
                 exitWithError("There is an untracked file in the way;" +
                         " delete it, or add and commit it first.");
             }
         }
-        for (File file : branchFilesMap.keySet()) {
-            writeContents(file, readContents(branchFilesMap.get(file)));
+        for (String fileName : existFiles) {
+            File file = join(CWD, fileName);
+            if (branchFilesMap.containsKey(file)) {
+                writeContents(file,
+                        readContents(branchFilesMap.get(file)));
+            } else if (repo.filesMap.containsKey(file)) {
+                file.delete();
+            }
         }
         repo.clear();
         repo.workingBranch = branch;
@@ -297,8 +306,11 @@ public class Repository implements Serializable {
         repo.saveRepo();
     }
 
-    public static void reset(String commitHash) {
-        BranchLogs.findBranchLogs(commitHash);
+    public static void reset(String hash) {
+        Repository repo = loadRepo();
+        if (repo.branchesPMap.containsValue(hash)) {
+            checkoutBranch(repo.branchesPMap.get(hash));
+        }
     }
 
     //When create a new branch, set a new pointer in the pointerMap.
