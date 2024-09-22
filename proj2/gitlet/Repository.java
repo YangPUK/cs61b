@@ -77,12 +77,13 @@ public class Repository implements Serializable {
             File addedFile = join(CWD, file);
             String fileHash = sha1(readContents(addedFile));
             File storeFile = join(BLOBS_DIR, fileHash);
+            filesMap.put(addedFile, storeFile);
             writeContents(storeFile, readContents(addedFile));
         }
         for (String file : removedFiles) {
-            filesMap.remove(file);
-            // Delete the file.
             File removedFile = join(CWD, file);
+            filesMap.remove(removedFile);
+            // Delete the file.
             if (removedFile.exists()) {
                 restrictedDelete(removedFile);
             }
