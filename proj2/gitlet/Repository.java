@@ -183,6 +183,9 @@ public class Repository implements Serializable {
         for(String removedFile : repo.removedFiles){
             System.out.println(removedFile);
         }
+        System.out.println("\n=== Modifications Not Staged For Commit ===");
+        System.out.println("\n=== Untracked Files ===");
+
     }
 
     public static void createBranch(String branch) {
