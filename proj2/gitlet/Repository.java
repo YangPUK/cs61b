@@ -273,7 +273,11 @@ public class Repository implements Serializable {
         if (repo.workingBranch.equals(branch)) {
             exitWithError("No need to checkout the current branch.");
         }
-        TreeMap<File, File> branchFilesMap = BranchLogs.findBranchLogs(repo.branchesPMap.get(branch));
+        String branchHash = repo.branchesPMap.get(branch);
+        if (branchHash == null) {
+            exitWithError("No such branch exists.");
+        }
+        TreeMap<File, File> branchFilesMap = BranchLogs.findBranchLogs(branchHash);
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);

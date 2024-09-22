@@ -59,6 +59,7 @@ public class Main {
                 needInit();
                 validateNumArgs("rm-branch", args, 2);
                 Repository.rmBranch(args[1]);
+                break;
             case "find":
                 needInit();
                 validateNumArgs("find", args, 2);

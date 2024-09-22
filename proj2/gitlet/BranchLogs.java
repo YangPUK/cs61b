@@ -90,13 +90,16 @@ public class BranchLogs implements Serializable {
     }
 
     public static TreeMap<File, File> findBranchLogs(String hash) {
+        if (hash == null) {
+            exitWithError("Hash is null");
+        }
         int n = hash.length();
         if (n <= 40) {
             List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
             for (String branch : branches) {
                 BranchLogs branchLogs = BranchLogs.readBranch(branch);
                 for (Node node : branchLogs.branchList) {
-                    if (node.hash.substring(0, n).equals(hash)) {
+                    if (node.hash.substring(0, n ).equals(hash)) {
                         return node.filesMap;
                     }
                 }
