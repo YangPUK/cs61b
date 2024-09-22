@@ -32,7 +32,7 @@ public class BranchLogs implements Serializable {
 
     public BranchLogs (String branch) {
         this.branch = branch;
-        branchList = new LinkedList();
+        branchList = new LinkedList<>();
         this.room = join(room, branch);
     }
 
@@ -96,7 +96,7 @@ public class BranchLogs implements Serializable {
             for (String branch : branches) {
                 BranchLogs branchLogs = BranchLogs.readBranch(branch);
                 for (Node node : branchLogs.branchList) {
-                    if (node.hash.substring(0, n - 1).equals(hash)) {
+                    if (node.hash.substring(0, n).equals(hash)) {
                         return node.filesMap;
                     }
                 }

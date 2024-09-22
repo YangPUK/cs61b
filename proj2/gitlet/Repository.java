@@ -105,18 +105,13 @@ public class Repository implements Serializable {
         if (!addedFile.exists()) {
             exitWithError("File does not exist.");
         }
-        //Staged or removed.
+        //Staged
         else if (repo.stagedFiles.contains(fileName)) {
             return;
         }
         // Not tracked.
         else if (!repo.filesMap.containsKey(addedFile)) {
             // Remove and add the same file.
-            if (repo.removedFiles.contains(fileName) &&
-                    fileCompare(repo.filesMap.get(fileName), addedFile)) {
-                repo.removedFiles.remove(fileName);
-                return;
-            }
             repo.stagedFiles.add(fileName);
             repo.saveRepo();
             return;
@@ -126,10 +121,9 @@ public class Repository implements Serializable {
         if (!fileCompare(oddFile, addedFile)) {
             repo.stagedFiles.add(fileName);
             repo.saveRepo();
-        } else {
-            if (repo.removedFiles.contains(fileName)) {
-                repo.removedFiles.remove(fileName);
-            }
+        } else if (repo.removedFiles.contains(fileName)) {
+            repo.removedFiles.remove(fileName);
+            repo.saveRepo();
         }
     }
 
