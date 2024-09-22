@@ -204,8 +204,22 @@ public class Repository implements Serializable {
 
     public static void mergeBranch(String branch) {
         Repository repo = loadRepo();
-        String branchHash = repo.branchesPMap.get(branch);
-        TreeMap<File, File> filesMap = BranchLogs.findHash(branchHash);
+        BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
+        BranchLogs currBranchLogs = BranchLogs.readBranch(repo.head);
+        if (currBranchLogs.contains(repo.branchesPMap.get(branch))) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            return;
+        }
+        else if (givenBranchLogs.parentHash.equals(repo.headHash())) {
+            checkout(branch);
+            System.out.println("Current branch fast-forwarded.");
+            return;
+        }
+
+
+
+
+
 
     }
 
@@ -229,7 +243,7 @@ public class Repository implements Serializable {
 
     public static void checkout(String hash, String fileName) {
         Repository repo = loadRepo();
-        TreeMap<File, File> filesMap = BranchLogs.findHash(hash);
+        TreeMap<File, File> filesMap = BranchLogs.findBranchLogs(hash);
         File currFile = join(CWD, fileName);
         File checkoutFile = filesMap.get(currFile);
         if (checkoutFile == null) {
@@ -249,7 +263,29 @@ public class Repository implements Serializable {
     }
 
     public static void checkoutBranch(String branch) {
-
+        Repository repo = loadRepo();
+        if (repo.head.equals(branch)) {
+            exitWithError("No need to checkout the current branch.");
+        }
+        BranchLogs branchLogs = BranchLogs.readBranch(branch);
+        TreeMap<File, File> filesMap = branchLogs.branchList.getFirst().filesMap;
+        List<String> existFiles = plainFilenamesIn(CWD);
+        for (String fileName : existFiles) {
+            File existFile = join(CWD, fileName);
+            if (repo.stagedFiles.contains(existFile) ||
+                    (!repo.filesMap.containsKey(existFile) &&
+                    filesMap.containsKey(existFile)) ) {
+                exitWithError("There is an untracked file in the way;" +
+                        " delete it, or add and commit it first.");
+            }
+        }
+        for (File file : filesMap.keySet()) {
+            writeContents(file, readContents(filesMap.get(file)));
+        }
+        repo.clear();
+        repo.head = branch;
+        repo.filesMap = filesMap;
+        repo.saveRepo();
     }
 
     //When create a new branch, set a new pointer in the pointerMap.

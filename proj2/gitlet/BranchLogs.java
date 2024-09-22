@@ -14,7 +14,7 @@ public class BranchLogs implements Serializable {
     public String parentBranch;
     public String parentHash;
 
-    private static class Node implements Serializable {
+    public static class Node implements Serializable {
         String hash;
         String message;
         String timeStamp;
@@ -39,6 +39,15 @@ public class BranchLogs implements Serializable {
     public void add(String hash, String message, String timeStamp, TreeMap<File, File> filesMap) {
         Node node = new Node(hash, message, timeStamp, filesMap);
         branchList.addFirst(node);
+    }
+
+    public boolean contains(String hash) {
+        for (Node node : branchList) {
+            if (node.hash.equals(hash)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -68,7 +77,7 @@ public class BranchLogs implements Serializable {
         }
     }
 
-    public static TreeMap<File, File> findHash(String hash) {
+    public static TreeMap<File, File> findBranchLogs(String hash) {
         List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
         for (String branch : branches) {
             BranchLogs branchLogs = BranchLogs.readBranch(branch);
@@ -87,7 +96,12 @@ public class BranchLogs implements Serializable {
     }
 
     public static BranchLogs readBranch(String branch) {
-        return readObject(join(Repository.LOGS_DIR, branch), BranchLogs.class);
+        try {
+            return readObject(join(Repository.LOGS_DIR, branch), BranchLogs.class);
+        } catch (Exception e) {
+            exitWithError("No such branch exists.");
+        }
+        return null;
     }
 
     public static BranchLogs readMaster() {

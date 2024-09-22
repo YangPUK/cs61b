@@ -68,7 +68,7 @@ public class Commit {
         for (String branch : branches) {
             BranchLogs branchLogs = BranchLogs.readBranch(branch);
             branchLogs.showLogs();
-        }
+       }
     }
 
 

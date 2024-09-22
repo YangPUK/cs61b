@@ -88,6 +88,11 @@ public class Main {
                     }
                 }
                 break;
+            case "merge":
+                needInit();
+                validateNumArgs("merge", args, 2);
+                Repository.mergeBranch(args[1]);
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
         }
