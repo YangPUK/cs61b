@@ -32,7 +32,7 @@ public class Repository implements Serializable {
     /**
      * The .gitlet directory.
      */
-    public static final File GITLET_DIR = join(CWD, ".gitlets");
+    public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File LOGS_DIR = join(GITLET_DIR, "logs");
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
     public static final File master = join(LOGS_DIR, "master");
@@ -229,7 +229,9 @@ public class Repository implements Serializable {
                 } else if (!repo.filesMap.get(file).equals(splitTreeMap.get(file)) &&
                         splitTreeMap.get(file).equals(filesMap.get(file))) {
                     continue;
-                } else if
+                } else {
+                    return;
+                }
 
             }
         }
