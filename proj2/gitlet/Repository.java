@@ -123,8 +123,6 @@ public class Repository implements Serializable {
         else if (repo.stagedFiles.contains(fileName)) {
             return;
         }
-//        String hash = sha1(readContents(addedFile));
-//        File storeFile = join(BLOBS_DIR, hash);
         // Not tracked.
         if (!repo.filesMap.containsKey(addedFile)) {
             // Remove and add the same file.
@@ -134,7 +132,6 @@ public class Repository implements Serializable {
                 return;
             }
             repo.stagedFiles.add(fileName);
-//            repo.filesMap.put(addedFile, storeFile);
             repo.saveRepo();
             return;
         }
@@ -142,7 +139,6 @@ public class Repository implements Serializable {
         File oddFile = repo.filesMap.get(addedFile);
         if (!fileCompare(oddFile, addedFile)) {
             repo.stagedFiles.add(fileName);
-//            repo.filesMap.put(addedFile, storeFile);
             repo.saveRepo();
             return;
         }
@@ -151,11 +147,8 @@ public class Repository implements Serializable {
     public static void removeFile(String fileName) {
         Repository repo = loadRepo();
         File removedFile = join(CWD, fileName);
-        if (!removedFile.exists()) {
-            exitWithError("File does not exist.");
-        }
         // Staged.
-        else if (repo.stagedFiles.contains(fileName)) {
+        if (repo.stagedFiles.contains(fileName)) {
             repo.stagedFiles.remove(fileName);
             repo.saveRepo();
         }
