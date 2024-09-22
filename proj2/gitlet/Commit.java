@@ -40,6 +40,12 @@ public class Commit {
     //Make a usual commit.
     public static void makeCommit(String message) {
         Repository repo = Repository.loadRepo();
+        if (repo.stagedFiles.size() == 0 &&
+                repo.removedFiles.size() == 0) {
+            exitWithError("No changes added to the commit");
+        } else if (message == "") {
+            exitWithError("Please enter a commit message.");
+        }
         String commit = message;
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         String timeStamp = sdf.format(new Date());

@@ -35,7 +35,7 @@ public class Repository implements Serializable {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File LOGS_DIR = join(GITLET_DIR, "logs");
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
-    public static final File master = join(LOGS_DIR, "master");
+//    public static final File master = join(LOGS_DIR, "master");
 
     private TreeMap<String, String> branchesPMap;   //Pointer Map
     public TreeMap<File, File> filesMap;
@@ -43,7 +43,6 @@ public class Repository implements Serializable {
     public TreeSet<String> removedFiles = new TreeSet<>();
     public TreeSet<String> mergeStagedFiles = new TreeSet<>();
     public String head;
-    private int size;
     public static final File repoRoom = join(Repository.GITLET_DIR, "repo");
 
     public static void setupPeresitence() {
@@ -74,14 +73,22 @@ public class Repository implements Serializable {
 
     public void record(String hash, String message, String timeStamp) {
         BranchLogs headBranch = readObject(join(LOGS_DIR, head), BranchLogs.class);
-        headBranch.add(hash, message, timeStamp, filesMap);
-        branchesPMap.put(head, hash);
         for (String file : stagedFiles) {
             File addedFile = join(CWD, file);
-            File storeFile = filesMap.get(addedFile);
+            String fileHash = sha1(readContents(addedFile));
+            File storeFile = join(BLOBS_DIR, fileHash);
             writeContents(storeFile, readContents(addedFile));
         }
-        size++;
+        for (String file : removedFiles) {
+            filesMap.remove(file);
+            // Delete the file.
+            File removedFile = join(CWD, file);
+            if (removedFile.exists()) {
+                restrictedDelete(removedFile);
+            }
+        }
+        headBranch.add(hash, message, timeStamp, filesMap);
+        branchesPMap.put(head, hash);
         clear();
         headBranch.saveBranch();
         this.saveRepo();
@@ -113,12 +120,18 @@ public class Repository implements Serializable {
         else if (repo.stagedFiles.contains(fileName)) {
             return;
         }
-        String hash = sha1(readContents(addedFile));
-        File storeFile = join(BLOBS_DIR, hash);
+//        String hash = sha1(readContents(addedFile));
+//        File storeFile = join(BLOBS_DIR, hash);
         // Not tracked.
         if (!repo.filesMap.containsKey(addedFile)) {
+            // Remove and add the same file.
+            if (repo.removedFiles.contains(fileName) &&
+                    fileCompare(repo.filesMap.get(fileName), addedFile)) {
+                repo.removedFiles.remove(fileName);
+                return;
+            }
             repo.stagedFiles.add(fileName);
-            repo.filesMap.put(addedFile, storeFile);
+//            repo.filesMap.put(addedFile, storeFile);
             repo.saveRepo();
             return;
         }
@@ -126,7 +139,7 @@ public class Repository implements Serializable {
         File oddFile = repo.filesMap.get(addedFile);
         if (!fileCompare(oddFile, addedFile)) {
             repo.stagedFiles.add(fileName);
-            repo.filesMap.put(addedFile, storeFile);
+//            repo.filesMap.put(addedFile, storeFile);
             repo.saveRepo();
             return;
         }
@@ -139,22 +152,14 @@ public class Repository implements Serializable {
             exitWithError("File does not exist.");
         }
         // Staged.
-        if (repo.stagedFiles.contains(fileName)) {
+        else if (repo.stagedFiles.contains(fileName)) {
             repo.stagedFiles.remove(fileName);
-            repo.filesMap.remove(removedFile);
             repo.saveRepo();
-            return;
         }
         // Not Staged, but tracked.
         else if (repo.filesMap.containsKey(removedFile)) {
-            repo.filesMap.remove(removedFile);
             repo.removedFiles.add(fileName);
-            // Delete the file.
-            if (removedFile.exists()) {
-                restrictedDelete(removedFile);
-            }
             repo.saveRepo();
-            return;
         } else {
             exitWithError("No reason to remove the file.");
         }
@@ -162,18 +167,18 @@ public class Repository implements Serializable {
 
     public static void showStatus(){
         Repository repo = loadRepo();
-        System.out.println("===Branches===\n");
+        System.out.println("===Branches===");
         for(String branch : repo.branchesPMap.keySet()){
             if (branch.equals(repo.head)) {
                 System.out.print("*");
             }
             System.out.println(branch);
         }
-        System.out.println("\n===stagedFiles===\n");
+        System.out.println("\n===stagedFiles===");
         for(String stagedFile : repo.stagedFiles){
             System.out.println(stagedFile);
         }
-        System.out.println("\n===removedFiles===\n");
+        System.out.println("\n===removedFiles===");
         for(String removedFile : repo.removedFiles){
             System.out.println(removedFile);
         }
