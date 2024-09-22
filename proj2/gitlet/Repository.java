@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.util.*;
 
 import static gitlet.Utils.*;
-import static gitlet.BranchLogs.*;
 
 /** Represents a gitlet repository.
  *  does at a high level.
@@ -280,7 +279,7 @@ public class Repository implements Serializable {
         if (repo.workingBranch.equals(branch)) {
             exitWithError("No need to checkout the current branch.");
         }
-        TreeMap<File, File> branchFilesMap = findBranchLogs(repo.branchesPMap.get(branch));
+        TreeMap<File, File> branchFilesMap = BranchLogs.findBranchLogs(repo.branchesPMap.get(branch));
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);

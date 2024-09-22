@@ -32,6 +32,8 @@ public class BranchLogs implements Serializable {
 
     public BranchLogs (String branch) {
         this.branch = branch;
+        branchList = new LinkedList();
+        this.room = join(room, branch);
     }
 
     public BranchLogs(String branch, Repository repo) {
