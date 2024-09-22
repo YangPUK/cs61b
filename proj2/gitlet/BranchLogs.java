@@ -68,6 +68,20 @@ public class BranchLogs implements Serializable {
         }
     }
 
+    public static TreeMap<File, File> findHash(String hash) {
+        List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
+        for (String branch : branches) {
+            BranchLogs branchLogs = BranchLogs.readBranch(branch);
+            for (Node node : branchLogs.branchList) {
+                if (node.hash.equals(hash)) {
+                    return node.filesMap;
+                }
+            }
+        }
+        exitWithError("No commit with that id exists.");
+        return null;
+    }
+
     public void saveBranch() {
         writeObject(room, this);
     }

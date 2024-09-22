@@ -67,7 +67,26 @@ public class Main {
             case "checkout":
                 needInit();
                 validateNumArgs("checkout", args, 2);
-                Repository.checkout(args[1]);
+                if (args.length == 2) {
+                    // checkout [branch name]
+                    Repository.checkoutBranch(args[1]);
+                }
+                else if (args.length == 3) {
+                    // checkout -- [file name]
+                    if(!args[1].equals("--")) {
+                        Utils.exitWithError("No command with that name exists.");
+                    } else {
+                        Repository.checkout(args[2]);
+                    }
+                }
+                else if (args.length == 4) {
+                    //checkout [commit id] -- [file name]
+                    if(!args[2].equals("--")) {
+                        Utils.exitWithError("No command with that name exists.");
+                    } else {
+                        Repository.checkout(args[1], args[3]);
+                    }
+                }
                 break;
             default:
                 Utils.exitWithError("No command with that name exists.");
@@ -82,15 +101,15 @@ public class Main {
 
     public static void validateNumArgs(String cmd, String[] args, int n) {
         switch (cmd) {
-            case "init", "commit", "add":
-                if (args.length != n) {
-                    Utils.exitWithError("Incorrect operands.");
-                }
-                break;
-            case "whatever":
-                if (args.length < n) {
+            case "checkout":
+                if (args.length < n || args.length > n + 2) {
                     Utils.
                             exitWithError("Incorrect operands.");
+                }
+                break;
+            default:
+                if (args.length != n) {
+                    Utils.exitWithError("Incorrect operands.");
                 }
                 break;
         }

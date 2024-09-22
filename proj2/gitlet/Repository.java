@@ -202,12 +202,54 @@ public class Repository implements Serializable {
         repo.saveRepo();
     }
 
-    public void mergeBranch(String branch) {
-        return;
+    public static void mergeBranch(String branch) {
+        Repository repo = loadRepo();
+        String branchHash = repo.branchesPMap.get(branch);
+        TreeMap<File, File> filesMap = BranchLogs.findHash(branchHash);
+
     }
 
-    public void checkout() {
-        return;
+    public static void checkout(String fileName) {
+        Repository repo = loadRepo();
+        File currFile = join(CWD, fileName);
+        File checkoutFile = repo.filesMap.get(currFile);
+        if (checkoutFile == null) {
+            exitWithError("File does not exist in that commit.");
+        } else {
+            writeContents(currFile, readContents(checkoutFile));
+            if (repo.stagedFiles.contains(fileName)) {
+                repo.stagedFiles.remove(fileName);
+            }
+            if (repo.removedFiles.contains(fileName)) {
+                repo.removedFiles.remove(fileName);
+            }
+            repo.saveRepo();
+        }
+    }
+
+    public static void checkout(String hash, String fileName) {
+        Repository repo = loadRepo();
+        TreeMap<File, File> filesMap = BranchLogs.findHash(hash);
+        File currFile = join(CWD, fileName);
+        File checkoutFile = filesMap.get(currFile);
+        if (checkoutFile == null) {
+            exitWithError("File does not exist in that commit.");
+        } else {
+            writeContents(currFile, readContents(checkoutFile));
+            repo.filesMap.put(currFile, checkoutFile);
+            if (repo.stagedFiles.contains(fileName)) {
+                repo.stagedFiles.remove(fileName);
+            }
+            if (repo.removedFiles.contains(fileName)) {
+                repo.removedFiles.remove(fileName);
+            }
+            repo.saveRepo();
+        }
+
+    }
+
+    public static void checkoutBranch(String branch) {
+
     }
 
     //When create a new branch, set a new pointer in the pointerMap.
