@@ -170,23 +170,23 @@ public class Repository implements Serializable {
 
     public static void showStatus(){
         Repository repo = loadRepo();
-        System.out.println("===Branches===");
+        System.out.println("=== Branches ===");
         for(String branch : repo.branchesPMap.keySet()){
             if (branch.equals(repo.workingBranch)) {
                 System.out.print("*");
             }
             System.out.println(branch);
         }
-        System.out.println("\n===stagedFiles===");
+        System.out.println("\n=== Staged Files ===");
         for(String stagedFile : repo.stagedFiles){
             System.out.println(stagedFile);
         }
-        System.out.println("\n===removedFiles===");
+        System.out.println("\n=== Removed Files ===");
         for(String removedFile : repo.removedFiles){
             System.out.println(removedFile);
         }
         System.out.println("\n=== Modifications Not Staged For Commit ===");
-        System.out.println("\n=== Untracked Files ===");
+        System.out.println("\n=== Untracked Files ===\n");
     }
 
     public static void createBranch(String branch) {
@@ -194,8 +194,8 @@ public class Repository implements Serializable {
         if (repo.branchesPMap.containsKey(branch)) {
             exitWithError("A branch with that name already exists.");
         }
-        repo.setPointer(branch, repo.headHash());
-        BranchLogs branchLogs = new BranchLogs(branch, repo.workingBranch, repo.headHash());
+        repo.setPointer(branch, repo.workingHash());
+        BranchLogs branchLogs = new BranchLogs(branch, repo.workingBranch, repo.workingHash());
         repo.workingBranch = branch;
         branchLogs.saveBranch();
         repo.saveRepo();
@@ -222,7 +222,7 @@ public class Repository implements Serializable {
                     " the current branch.");
             return;
         }
-        else if (givenBranchLogs.parentHash.equals(repo.headHash())) {
+        else if (givenBranchLogs.parentHash.equals(repo.workingHash())) {
             checkout(branch);
             System.out.println("Current branch fast-forwarded.");
             return;
@@ -326,7 +326,7 @@ public class Repository implements Serializable {
     public void setPointer(String branch, String hash) {
         branchesPMap.put(branch, hash);
     }
-    public String headHash() {
+    public String workingHash() {
         return branchesPMap.get(workingBranch);
     }
 }
