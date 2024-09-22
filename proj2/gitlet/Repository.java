@@ -72,7 +72,7 @@ public class Repository implements Serializable {
     }
 
     public void record(String hash, String message, String timeStamp) {
-        BranchLogs headBranch = readObject(join(BLOBS_DIR, head), BranchLogs.class);
+        BranchLogs headBranch = readObject(join(LOGS_DIR, head), BranchLogs.class);
         headBranch.add(hash, message, timeStamp, filesMap);
         branchesPMap.put(head, hash);
         for (String file : stagedFiles) {
@@ -108,6 +108,10 @@ public class Repository implements Serializable {
         if (!addedFile.exists()) {
             exitWithError("File does not exist.");
         }
+        //Staged
+        else if (repo.stagedFiles.contains(fileName)) {
+            return;
+        }
         String hash = sha1(readContents(addedFile));
         File storeFile = join(BLOBS_DIR, hash);
         // Not tracked.
@@ -118,13 +122,8 @@ public class Repository implements Serializable {
             return;
         }
         // Already staged.
-        else if (repo.stagedFiles.contains(fileName)) {
-            return;
-        }
-        // Not staged.
         File oddFile = repo.filesMap.get(addedFile);
-//        String addedContent = readContentsAsString(addedFile);
-        if (fileCompare(oddFile, addedFile)) {
+        if (!fileCompare(oddFile, addedFile)) {
             repo.stagedFiles.add(fileName);
             repo.filesMap.put(addedFile, storeFile);
             repo.saveRepo();
@@ -179,7 +178,7 @@ public class Repository implements Serializable {
         }
     }
 
-    public static void creatBranch(String branch) {
+    public static void createBranch(String branch) {
         Repository repo = loadRepo();
         if (repo.branchesPMap.containsKey(branch)) {
             exitWithError("A branch with that name already exists.");
@@ -193,7 +192,7 @@ public class Repository implements Serializable {
 
     public static void rmBranch(String branch) {
         Repository repo = loadRepo();
-        if (repo.head.equals(branch)) {
+        if (repo.head.equals(branch) || branch.equals("master")) {
             exitWithError("Cannot remove the current branch.");
         }
         else if (!repo.branchesPMap.containsKey(branch)) {
@@ -201,6 +200,14 @@ public class Repository implements Serializable {
         }
         repo.branchesPMap.remove(branch);
         repo.saveRepo();
+    }
+
+    public void mergeBranch(String branch) {
+        return;
+    }
+
+    public void checkout() {
+        return;
     }
 
     //When create a new branch, set a new pointer in the pointerMap.

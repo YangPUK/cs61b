@@ -31,7 +31,7 @@ public class Commit {
         BranchLogs masterBranch = new BranchLogs("master", null, null);
         masterBranch.saveBranch();
         String message = "initial commit";
-        String timeStamp = "Date: Wed Dec 31 16:00:00 1969 -0800";
+        String timeStamp = "Wed Dec 31 16:00:00 1969 -0800";
         String hash = sha1(timeStamp, message);
         Repository repo = new Repository();
         repo.record(hash, message, timeStamp);
@@ -39,11 +39,11 @@ public class Commit {
 
     //Make a usual commit.
     public static void makeCommit(String message) {
-        Repository repo = new Repository();
+        Repository repo = Repository.loadRepo();
         String commit = message;
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         String timeStamp = sdf.format(new Date());
-        String hash = sha1(message, sdf, repo.filesMap);
+        String hash = sha1(message, timeStamp, repo.filesMap.toString());
         repo.record(hash, commit, timeStamp);
     }
 

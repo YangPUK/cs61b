@@ -53,7 +53,7 @@ public class Main {
             case "branch":
                 needInit();
                 validateNumArgs("branch", args, 2);
-                Repository.creatBranch(args[1]);
+                Repository.createBranch(args[1]);
                 break;
             case "rm-branch":
                 needInit();
@@ -63,6 +63,11 @@ public class Main {
                 needInit();
                 validateNumArgs("find", args, 2);
                 BranchLogs.find(args[1]);
+                break;
+            case "checkout":
+                needInit();
+                validateNumArgs("checkout", args, 2);
+                Repository.checkout(args[1]);
                 break;
             default:
                 Utils.exitWithError("No command with that name exists.");
