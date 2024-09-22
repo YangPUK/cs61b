@@ -41,6 +41,7 @@ public class Repository implements Serializable {
     public TreeMap<File, File> filesMap;
     public TreeSet<String> stagedFiles = new TreeSet<>();
     public TreeSet<String> removedFiles = new TreeSet<>();
+    public TreeSet<String> mergeStagedFiles = new TreeSet<>();
     public String head;
     private int size;
     public static final File repoRoom = join(Repository.GITLET_DIR, "repo");
@@ -207,13 +208,30 @@ public class Repository implements Serializable {
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
         BranchLogs currBranchLogs = BranchLogs.readBranch(repo.head);
         if (currBranchLogs.contains(repo.branchesPMap.get(branch))) {
-            System.out.println("Given branch is an ancestor of the current branch.");
+            System.out.println("Given branch is an ancestor of" +
+                    " the current branch.");
             return;
         }
         else if (givenBranchLogs.parentHash.equals(repo.headHash())) {
             checkout(branch);
             System.out.println("Current branch fast-forwarded.");
             return;
+        } else {
+            List<String> existFiles = plainFilenamesIn(CWD);
+            TreeMap<File, File> filesMap = givenBranchLogs.findBranchLogs(branch);
+            TreeMap<File, File> splitTreeMap = currBranchLogs.findBranchLogs(givenBranchLogs.parentHash);
+            for (String fileName : existFiles) {
+                File file = join(CWD, fileName);
+                if (!repo.filesMap.get(file).equals(filesMap.get(file)) &&
+                        repo.filesMap.get(file).equals(splitTreeMap.get(file))) {
+                    repo.mergeStagedFiles.add(fileName);
+                    writeContents(file, filesMap.get(file));
+                } else if (!repo.filesMap.get(file).equals(splitTreeMap.get(file)) &&
+                        splitTreeMap.get(file).equals(filesMap.get(file))) {
+                    continue;
+                } else if
+
+            }
         }
 
 
