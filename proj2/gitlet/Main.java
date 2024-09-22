@@ -99,6 +99,9 @@ public class Main {
                 validateNumArgs("merge", args, 2);
                 Repository.mergeBranch(args[1]);
                 break;
+            case "myfun":
+                Repository.myfun();
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
         }
