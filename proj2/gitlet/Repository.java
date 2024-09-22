@@ -8,19 +8,13 @@ import java.util.*;
 
 import static gitlet.Utils.*;
 
-
-// TODO: any imports you need here
-
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
+ *  @author eBean
  */
 public class Repository implements Serializable {
     /**
-     * TODO: add instance variables here.
-     *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
@@ -29,14 +23,10 @@ public class Repository implements Serializable {
      * The current working directory.
      */
     public static final File CWD = new File(System.getProperty("user.dir"));
-    /**
-     * The .gitlet directory.
-     */
+    //* The .gitlet directory.
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File LOGS_DIR = join(GITLET_DIR, "logs");
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
-//    public static final File master = join(LOGS_DIR, "master");
-
     private TreeMap<String, String> branchesPMap;   //Pointer Map
     public TreeMap<File, File> filesMap;
     public TreeSet<String> stagedFiles = new TreeSet<>();
@@ -85,10 +75,6 @@ public class Repository implements Serializable {
         for (String file : removedFiles) {
             File removedFile = join(CWD, file);
             filesMap.remove(removedFile);
-            // Delete the file.
-            if (removedFile.exists()) {
-                restrictedDelete(removedFile);
-            }
         }
         headBranch.add(hash, message, timeStamp, filesMap);
         branchesPMap.put(workingBranch, hash);
@@ -155,6 +141,10 @@ public class Repository implements Serializable {
         // Not Staged, but tracked.
         else if (repo.filesMap.containsKey(removedFile)) {
             repo.removedFiles.add(fileName);
+            // Delete the file.
+            if (removedFile.exists()) {
+                restrictedDelete(removedFile);
+            }
             repo.saveRepo();
         } else {
             exitWithError("No reason to remove the file.");
@@ -189,7 +179,6 @@ public class Repository implements Serializable {
         }
         repo.setPointer(branch, repo.workingHash());
         BranchLogs branchLogs = new BranchLogs(branch, repo.workingBranch, repo.workingHash());
-        repo.workingBranch = branch;
         branchLogs.saveBranch();
         repo.saveRepo();
     }
@@ -203,6 +192,7 @@ public class Repository implements Serializable {
             exitWithError("A branch with that name does not exists");
         }
         repo.branchesPMap.remove(branch);
+        join(LOGS_DIR, branch).delete();
         repo.saveRepo();
     }
 
@@ -238,14 +228,9 @@ public class Repository implements Serializable {
 
             }
         }
-
-
-
-
-
-
     }
 
+    // Checkout a file to previous version.
     public static void checkout(String fileName) {
         Repository repo = loadRepo();
         File currFile = join(CWD, fileName);
@@ -264,6 +249,7 @@ public class Repository implements Serializable {
         }
     }
 
+    // Checkout a file to specific version.
     public static void checkout(String hash, String fileName) {
         Repository repo = loadRepo();
         TreeMap<File, File> filesMap = BranchLogs.findBranchLogs(hash);
@@ -282,32 +268,32 @@ public class Repository implements Serializable {
             }
             repo.saveRepo();
         }
-
     }
 
+    //Checkout to other branch.
     public static void checkoutBranch(String branch) {
         Repository repo = loadRepo();
         if (repo.workingBranch.equals(branch)) {
             exitWithError("No need to checkout the current branch.");
         }
         BranchLogs branchLogs = BranchLogs.readBranch(branch);
-        TreeMap<File, File> filesMap = branchLogs.branchList.getFirst().filesMap;
+        TreeMap<File, File> branchFilesMap = branchLogs.branchList.getFirst().filesMap;
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
             File existFile = join(CWD, fileName);
             if (repo.stagedFiles.contains(existFile) ||
                     (!repo.filesMap.containsKey(existFile) &&
-                    filesMap.containsKey(existFile)) ) {
+                    branchFilesMap.containsKey(existFile)) ) {
                 exitWithError("There is an untracked file in the way;" +
                         " delete it, or add and commit it first.");
             }
         }
-        for (File file : filesMap.keySet()) {
-            writeContents(file, readContents(filesMap.get(file)));
+        for (File file : branchFilesMap.keySet()) {
+            writeContents(file, readContents(branchFilesMap.get(file)));
         }
         repo.clear();
         repo.workingBranch = branch;
-        repo.filesMap = filesMap;
+        repo.filesMap = branchFilesMap;
         repo.saveRepo();
     }
 

@@ -74,7 +74,7 @@ public class Main {
                 else if (args.length == 3) {
                     // checkout -- [file name]
                     if(!args[1].equals("--")) {
-                        Utils.exitWithError("No command with that name exists.");
+                        Utils.exitWithError("Incorrect operands.");
                     } else {
                         Repository.checkout(args[2]);
                     }
@@ -82,7 +82,7 @@ public class Main {
                 else if (args.length == 4) {
                     //checkout [commit id] -- [file name]
                     if(!args[2].equals("--")) {
-                        Utils.exitWithError("No command with that name exists.");
+                        Utils.exitWithError("Incorrect operands.");
                     } else {
                         Repository.checkout(args[1], args[3]);
                     }

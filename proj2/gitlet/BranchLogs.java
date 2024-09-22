@@ -15,10 +15,10 @@ public class BranchLogs implements Serializable {
     public String parentHash;
 
     public static class Node implements Serializable {
-        String hash;
-        String message;
-        String timeStamp;
-        TreeMap<File, File> filesMap;
+        public String hash;
+        public String message;
+        private String timeStamp;
+        public TreeMap<File, File> filesMap;
 
         public Node(String hash, String message, String timeStamp, TreeMap<File, File> filesMap) {
             this.hash = hash;
