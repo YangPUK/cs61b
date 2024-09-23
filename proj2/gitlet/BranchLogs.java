@@ -138,6 +138,7 @@ public class BranchLogs implements Serializable {
             if (node.hash.substring(0, n).equals(hash)) {
                 int i = branchList.indexOf(node);
                 branchList.subList(0, i).clear();
+                return;
             }
         }
     }
@@ -159,7 +160,6 @@ public class BranchLogs implements Serializable {
         }
         branchLogs.resetList(hash);
         repo.setPointer(branchLogs.branch, hash);
-        repo.saveRepo();
         branchLogs.saveBranch();
         //Delete other branches
         for (String branch : branches) {
@@ -168,6 +168,7 @@ public class BranchLogs implements Serializable {
                 repo.rmPointer(branch);
             }
         }
+        repo.saveRepo();
     }
 
     public void saveBranch() {

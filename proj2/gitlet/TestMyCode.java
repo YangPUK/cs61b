@@ -8,7 +8,7 @@ import java.util.*;
 public class TestMyCode {
 
     @Test
-    public void testRest() {
+    public void testInit() {
         String[] init = {"init"};
         String[] adda = {"add", "a"};
         String[] addb = {"add", "b"};
@@ -32,8 +32,14 @@ public class TestMyCode {
         Main.main(commit);
         Main.main(adde);
         Main.main(commit);
+    }
+
+    @Test
+    public void testRest() {
+        String[] reset = {"reset", "b620"};
         Main.main(reset);
     }
+
     @Test
     public void myTest() {
         List<String> a = new ArrayList<>();
