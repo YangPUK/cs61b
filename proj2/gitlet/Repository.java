@@ -311,11 +311,9 @@ public class Repository implements Serializable {
         return branchesPMap.get(workingBranch);
     }
 
-    public static void myfun() {
-        List<String> files = plainFilenamesIn(CWD);
-        for (String fileName : files) {
-            System.out.println(fileName);
-        }
+    public void rmPointer(String branch) {
+        branchesPMap.remove(branch);
     }
+
 }
 

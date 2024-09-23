@@ -136,8 +136,7 @@ public class BranchLogs implements Serializable {
         for (Node node : branchList) {
             if (node.hash.substring(0, n).equals(hash)) {
                 int i = branchList.indexOf(node);
-                int size = branchList.size();
-                branchList.subList(i + 1, size).clear();
+                branchList.subList(0, i).clear();
             }
         }
     }
@@ -157,7 +156,6 @@ public class BranchLogs implements Serializable {
             branchLogs = readBranch(branchLogs.parentBranch);
         }
         branchLogs.resetList(hash);
-        keepBranches.add("master");
         repo.setPointer(branchLogs.branch, hash);
         repo.saveRepo();
         branchLogs.saveBranch();
@@ -165,7 +163,7 @@ public class BranchLogs implements Serializable {
         for (String branch : branches) {
             if (!keepBranches.contains(branch)) {
                 join(Repository.LOGS_DIR, branch).delete();
-                Repository.rmBranch(branch);
+                repo.rmPointer(branch);
             }
         }
     }
