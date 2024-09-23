@@ -2,10 +2,10 @@ package gitlet;
 
 import static gitlet.Utils.*;
 
-// TODO: any imports you need here
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
 
 /** Represents a gitlet commit object.
  *  does at a high level.
@@ -24,7 +24,7 @@ public class Commit {
     private String message;
 
     // Init inital commit.
-    public static void setup(){
+    public static void setup() {
         BranchLogs masterBranch = new BranchLogs("master");
         masterBranch.saveBranch();
         String message = "initial commit";
@@ -37,8 +37,8 @@ public class Commit {
     //Make a usual commit.
     public static void makeCommit(String message) {
         Repository repo = Repository.loadRepo();
-        if (repo.stagedFiles.size() == 0 &&
-                repo.removedFiles.size() == 0) {
+        if (repo.stagedFiles.size() == 0
+                && repo.removedFiles.size() == 0) {
             exitWithError("No changes added to the commit");
         } else if (message.isBlank()) {
             exitWithError("Please enter a commit message.");
@@ -67,13 +67,12 @@ public class Commit {
     }
 
     public static void showGlobalLogs() {
-        List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
-        for (String branch : branches) {
-            BranchLogs branchLogs = BranchLogs.readBranch(branch);
+        List<String> branchFiles = plainFilenamesIn(Repository.LOGS_DIR);
+        for (String branchName : branchFiles) {
+            BranchLogs branchLogs = BranchLogs.readBranch(branchName);
             branchLogs.showLogs();
-       }
+        }
     }
-
 
 }
 

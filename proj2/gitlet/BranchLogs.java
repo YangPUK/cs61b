@@ -30,7 +30,7 @@ public class BranchLogs implements Serializable {
         }
     }
 
-    public BranchLogs (String branch) {
+    public BranchLogs(String branch) {
         this.branch = branch;
         branchList = new LinkedList<>();
         this.room = join(room, branch);
@@ -99,7 +99,7 @@ public class BranchLogs implements Serializable {
             for (String branch : branches) {
                 BranchLogs branchLogs = BranchLogs.readBranch(branch);
                 for (Node node : branchLogs.branchList) {
-                    if (node.hash.substring(0, n ).equals(hash)) {
+                    if (node.hash.substring(0, n).equals(hash)) {
                         return node.filesMap;
                     }
                 }
@@ -114,12 +114,11 @@ public class BranchLogs implements Serializable {
     }
 
     public static BranchLogs readBranch(String branch) {
-        try {
-            return readObject(join(Repository.LOGS_DIR, branch), BranchLogs.class);
-        } catch (Exception e) {
+        File file = join(Repository.LOGS_DIR, branch);
+        if (!file.exists()) {
             exitWithError("No such branch exists.");
         }
-        return null;
+        return readObject(file, BranchLogs.class);
     }
 
     public static BranchLogs readMaster() {

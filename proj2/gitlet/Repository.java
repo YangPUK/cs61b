@@ -33,8 +33,7 @@ public class Repository implements Serializable {
     public TreeSet<String> removedFiles = new TreeSet<>();
     public TreeSet<String> mergeStagedFiles = new TreeSet<>();
     public String workingBranch;
-//    public String head;
-    public static final File repoRoom = join(Repository.GITLET_DIR, "repo");
+    public static final File REPO_ROOM = join(Repository.GITLET_DIR, "repo");
 
     public static void setupPeresitence() {
         if (!GITLET_DIR.exists()) {
@@ -43,7 +42,8 @@ public class Repository implements Serializable {
             BLOBS_DIR.mkdir();
             Commit.setup();
         } else {
-            exitWithError("A Gitlet version-control system already exists in the current directory.");
+            exitWithError("A Gitlet version-control system already exists"
+                    + " in the current directory.");
         }
     }
 
@@ -51,16 +51,15 @@ public class Repository implements Serializable {
         branchesPMap = new TreeMap<>();
         branchesPMap.put("master", null);
         workingBranch = "master";
-//        head = "master";
         filesMap = new TreeMap<>();
     }
 
     public void saveRepo() {
-        writeObject(repoRoom, this);
+        writeObject(REPO_ROOM, this);
     }
 
     public static Repository loadRepo() {
-        return readObject(repoRoom, Repository.class);
+        return readObject(REPO_ROOM, Repository.class);
     }
 
     public void record(String hash, String message, String timeStamp) {
@@ -104,19 +103,16 @@ public class Repository implements Serializable {
         File addedFile = join(CWD, fileName);
         if (!addedFile.exists()) {
             exitWithError("File does not exist.");
-        }
-        //Staged
+        }   //Stage
         else if (repo.stagedFiles.contains(fileName)) {
             return;
-        }
-        // Not tracked.
+        }   // Not tracked.
         else if (!repo.filesMap.containsKey(addedFile)) {
             // Remove and add the same file.
             repo.stagedFiles.add(fileName);
             repo.saveRepo();
             return;
-        }
-        //Tracked
+        }   //Tracked
         File oddFile = repo.filesMap.get(addedFile);
         if (!fileCompare(oddFile, addedFile)) {
             repo.stagedFiles.add(fileName);
@@ -134,8 +130,7 @@ public class Repository implements Serializable {
         if (repo.stagedFiles.contains(fileName)) {
             repo.stagedFiles.remove(fileName);
             repo.saveRepo();
-        }
-        // Not Staged, but tracked.
+        }   // Not Staged, but tracked.
         else if (repo.filesMap.containsKey(removedFile)) {
             repo.removedFiles.add(fileName);
             // Delete the file.
@@ -151,18 +146,18 @@ public class Repository implements Serializable {
     public static void showStatus(){
         Repository repo = loadRepo();
         System.out.println("=== Branches ===");
-        for(String branch : repo.branchesPMap.keySet()){
+        for (String branch : repo.branchesPMap.keySet()) {
             if (branch.equals(repo.workingBranch)) {
                 System.out.print("*");
             }
             System.out.println(branch);
         }
         System.out.println("\n=== Staged Files ===");
-        for(String stagedFile : repo.stagedFiles){
+        for (String stagedFile : repo.stagedFiles) {
             System.out.println(stagedFile);
         }
         System.out.println("\n=== Removed Files ===");
-        for(String removedFile : repo.removedFiles){
+        for (String removedFile : repo.removedFiles) {
             System.out.println(removedFile);
         }
         System.out.println("\n=== Modifications Not Staged For Commit ===");
@@ -198,8 +193,8 @@ public class Repository implements Serializable {
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
         BranchLogs currBranchLogs = BranchLogs.readBranch(repo.workingBranch);
         if (currBranchLogs.contains(repo.branchesPMap.get(branch))) {
-            System.out.println("Given branch is an ancestor of" +
-                    " the current branch.");
+            System.out.println("Given branch is an ancestor of"
+                    + " the current branch.");
             return;
         }
         else if (givenBranchLogs.parentHash.equals(repo.workingHash())) {
@@ -209,18 +204,18 @@ public class Repository implements Serializable {
         } else {
             List<String> existFiles = plainFilenamesIn(CWD);
             TreeMap<File, File> filesMap = givenBranchLogs.findBranchLogs(branch);
-            TreeMap<File, File> splitTreeMap = currBranchLogs.findBranchLogs(givenBranchLogs.parentHash);
+            TreeMap<File, File> splitTreeMap = currBranchLogs.findBranchLogs
+                    (givenBranchLogs.parentHash);
             for (String fileName : existFiles) {
                 File file = join(CWD, fileName);
                 if (!repo.filesMap.get(file).equals(filesMap.get(file))
                         && repo.filesMap.get(file).equals(splitTreeMap.get(file))) {
                     repo.mergeStagedFiles.add(fileName);
                     writeContents(file, filesMap.get(file));
-                } else if (!repo.filesMap.get(file).equals(splitTreeMap.get(file))
+                }
+                else if (!repo.filesMap.get(file).equals(splitTreeMap.get(file))
                         && splitTreeMap.get(file).equals(filesMap.get(file))) {
                     continue;
-                } else {
-                    return;
                 }
 
             }
