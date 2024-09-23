@@ -67,6 +67,17 @@ public class TestMyCode {
     }
 
     @Test
+    public void testRestErr() {
+        setup1();
+        branch("other");
+        add("h.txt");
+        rm("g.txt");
+        commit("Add h remove g");
+        log();
+        checkout("other");
+    }
+
+    @Test
     public void myTest() {
         List<String> a = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
