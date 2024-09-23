@@ -124,6 +124,7 @@ public class BranchLogs implements Serializable {
                     if (node.hash.substring(0, n).equals(hash)) {
                         branchLogs.resetBranches(hash);
                         Repository.checkoutHelper(branch, node.filesMap);
+                        return;
                     }
                 }
             }
