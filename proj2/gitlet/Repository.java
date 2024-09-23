@@ -103,11 +103,9 @@ public class Repository implements Serializable {
         File addedFile = join(CWD, fileName);
         if (!addedFile.exists()) {
             exitWithError("File does not exist.");
-        }   //Stage
-        else if (repo.stagedFiles.contains(fileName)) {
+        } else if (repo.stagedFiles.contains(fileName)) {
             return;
-        }   // Not tracked.
-        else if (!repo.filesMap.containsKey(addedFile)) {
+        } else if (!repo.filesMap.containsKey(addedFile)) {
             // Remove and add the same file.
             repo.stagedFiles.add(fileName);
             repo.saveRepo();
@@ -130,8 +128,7 @@ public class Repository implements Serializable {
         if (repo.stagedFiles.contains(fileName)) {
             repo.stagedFiles.remove(fileName);
             repo.saveRepo();
-        }   // Not Staged, but tracked.
-        else if (repo.filesMap.containsKey(removedFile)) {
+        } else if (repo.filesMap.containsKey(removedFile)) {   // Not Staged, but tracked.
             repo.removedFiles.add(fileName);
             // Delete the file.
             if (removedFile.exists()) {
@@ -179,8 +176,7 @@ public class Repository implements Serializable {
         Repository repo = loadRepo();
         if (repo.workingBranch.equals(branch) || branch.equals("master")) {
             exitWithError("Cannot remove the current branch.");
-        }
-        else if (!repo.branchesPMap.containsKey(branch)) {
+        } else if (!repo.branchesPMap.containsKey(branch)) {
             exitWithError("A branch with that name does not exists");
         }
         repo.branchesPMap.remove(branch);
@@ -196,8 +192,7 @@ public class Repository implements Serializable {
             System.out.println("Given branch is an ancestor of"
                     + " the current branch.");
             return;
-        }
-        else if (givenBranchLogs.parentHash.equals(repo.workingHash())) {
+        } else if (givenBranchLogs.parentHash.equals(repo.workingHash())) {
             checkout(branch);
             System.out.println("Current branch fast-forwarded.");
             return;
