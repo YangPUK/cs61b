@@ -67,11 +67,12 @@ public class BranchLogs implements Serializable {
 
     public void showLogs() {
         for (Node node : branchList) {
-            if(node.hash != headHash) {
-                System.out.println("===");
-                System.out.println("commit " + node.hash);
-                System.out.println("Date: " + node.timeStamp);
-                System.out.println(node.message + "\n");
+            System.out.println("===");
+            System.out.println("commit " + node.hash);
+            System.out.println("Date: " + node.timeStamp);
+            System.out.println(node.message + "\n");
+            if (node.hash == headHash) {
+                break;
             }
         }
     }
