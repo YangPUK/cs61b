@@ -14,6 +14,7 @@ public class TestMyCode {
     String[] branch = {"branch", "other"};
     String[] reset = {"reset" };
     String[] checkout = {"checkout", "test"};
+    String[] log = {"log"};
 
     private void cFile(String fileName) {
         File file = join(CWD, fileName);
@@ -36,9 +37,11 @@ public class TestMyCode {
     @Test
     public void testFine() {
         setup1();
-        setup2();
         rm("f.txt");
         commit("Remove one file");
+        log();
+
+
 
     }
 
@@ -60,15 +63,17 @@ public class TestMyCode {
 
     @Test
     public void setup1() {
-        File gitlet = Repository.GITLET_DIR;
-        gitlet.delete();
         Main.main(init);
         cFile("f.txt");
         cFile("g.txt");
         add("g.txt");
         add("f.txt");
-    }
-    public void setup2() {
         commit("Two files");
+    }
+    @Test
+    public void setup2() {
+    }
+    public void log() {
+        Main.main(log);
     }
 }

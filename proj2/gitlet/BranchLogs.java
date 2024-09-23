@@ -64,16 +64,25 @@ public class BranchLogs implements Serializable {
         return false;
     }
 
+    private int getHeadIndex() {
+        int index = 0;
+        for (Node node : branchList) {
+            if (node.hash.equals(headHash)) {
+                return index;
+            }
+            index++;
+        }
+        return -1;
+    }
+
 
     public void showLogs() {
-        for (Node node : branchList) {
+        for (int i = getHeadIndex(); i < branchList.size(); i++) {
+            Node node = branchList.get(i);
             System.out.println("===");
             System.out.println("commit " + node.hash);
             System.out.println("Date: " + node.timeStamp);
             System.out.println(node.message + "\n");
-            if (node.hash == headHash) {
-                break;
-            }
         }
     }
 
@@ -162,33 +171,33 @@ public class BranchLogs implements Serializable {
         }
     }
 
-    private void resetBranches(String hash) {
-        List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
-        Repository repo = Repository.loadRepo();
-        BranchLogs branchLogs = this;
-        TreeSet<String> keepBranches = new TreeSet<>();
-        keepBranches.add(this.branch);
-        //Recursive find the original split point, and cutoff branchList.
-        while (branchLogs.parentBranch != null) {
-            keepBranches.add(branch);
-            branchLogs.resetList(hash);
-            repo.setPointer(branchLogs.branch, hash);
-            hash = branchLogs.parentHash;
-            branchLogs.saveBranch();
-            branchLogs = readBranch(branchLogs.parentBranch);
-        }
-        branchLogs.resetList(hash);
-        repo.setPointer(branchLogs.branch, hash);
-        branchLogs.saveBranch();
-        //Delete other branches
-        for (String branch : branches) {
-            if (!keepBranches.contains(branch)) {
-                join(Repository.LOGS_DIR, branch).delete();
-                repo.rmPointer(branch);
-            }
-        }
-        repo.saveRepo();
-    }
+//    private void resetBranches(String hash) {
+//        List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
+//        Repository repo = Repository.loadRepo();
+//        BranchLogs branchLogs = this;
+//        TreeSet<String> keepBranches = new TreeSet<>();
+//        keepBranches.add(this.branch);
+//        //Recursive find the original split point, and cutoff branchList.
+//        while (branchLogs.parentBranch != null) {
+//            keepBranches.add(branch);
+//            branchLogs.resetList(hash);
+//            repo.setPointer(branchLogs.branch, hash);
+//            hash = branchLogs.parentHash;
+//            branchLogs.saveBranch();
+//            branchLogs = readBranch(branchLogs.parentBranch);
+//        }
+//        branchLogs.resetList(hash);
+//        repo.setPointer(branchLogs.branch, hash);
+//        branchLogs.saveBranch();
+//        //Delete other branches
+//        for (String branch : branches) {
+//            if (!keepBranches.contains(branch)) {
+//                join(Repository.LOGS_DIR, branch).delete();
+//                repo.rmPointer(branch);
+//            }
+//        }
+//        repo.saveRepo();
+//    }
 
     public void saveBranch() {
         writeObject(room, this);
