@@ -147,6 +147,7 @@ public class BranchLogs implements Serializable {
         Repository repo = Repository.loadRepo();
         BranchLogs branchLogs = this;
         TreeSet<String> keepBranches = new TreeSet<>();
+        keepBranches.add(this.branch);
         //Recursive find the original split point, and cutoff branchList.
         while (branchLogs.parentBranch != null) {
             keepBranches.add(branch);
