@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -189,7 +190,7 @@ public class Repository implements Serializable {
         Repository repo = loadRepo();
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
         BranchLogs currBranchLogs = BranchLogs.readBranch(repo.workingBranch);
-        if (currBranchLogs.contains(repo.branchesPMap.get(branch))) {
+        if (currBranchLogs.contains(givenBranchLogs.headHash)) {
             System.out.println("Given branch is an ancestor of"
                     + " the current branch.");
             return;
@@ -197,24 +198,60 @@ public class Repository implements Serializable {
             checkout(branch);
             System.out.println("Current branch fast-forwarded.");
             return;
+        }
+        BranchLogs parentBranchLogs;
+        BranchLogs childBranchLogs;
+        if (currBranchLogs.parentHash.equals(branch)) {
+            parentBranchLogs = currBranchLogs;
+            childBranchLogs = givenBranchLogs;
         } else {
-            List<String> existFiles = plainFilenamesIn(CWD);
-            TreeMap<File, File> filesMap = givenBranchLogs.findBranchLogs(branch);
-            TreeMap<File, File> splitTreeMap = currBranchLogs.findBranchLogs
-                    (givenBranchLogs.parentHash);
-            for (String fileName : existFiles) {
-                File file = join(CWD, fileName);
-                if (!repo.filesMap.get(file).equals(filesMap.get(file))
-                        && repo.filesMap.get(file).equals(splitTreeMap.get(file))) {
+            parentBranchLogs = givenBranchLogs;
+            childBranchLogs = currBranchLogs;
+        }
+        String splitHash = childBranchLogs.parentHash;
+        TreeMap<File, File> splitMap = childBranchLogs.findBranchLogs(splitHash);
+        TreeMap<File, File> givenMap = givenBranchLogs.headMap;
+        List<String> existFiles = plainFilenamesIn(CWD);
+        for (String fileName : existFiles) {
+            File file = join(CWD, fileName);
+            if (givenMap.get(file) != (splitMap.get(file))
+                    && repo.filesMap.get(file) == splitMap.get(file)) {
+                //Modified or removed in givenBranch, not in currBranch.
+                if (givenMap.containsKey(file)) {
+                    writeContents(file, givenMap.get(file));
                     repo.mergeStagedFiles.add(fileName);
-                    writeContents(file, filesMap.get(file));
+                } else {
+                    file.delete();
                 }
-                else if (!repo.filesMap.get(file).equals(splitTreeMap.get(file))
-                        && splitTreeMap.get(file).equals(filesMap.get(file))) {
+                continue;
+            } else if (givenMap.get(file) == (splitMap.get(file))
+                    && repo.filesMap.get(file) != splitMap.get(file)) {
+                //Modified in currBranch, not in givenBranch.
+                continue;
+            } else if (givenMap.get(file) != (splitMap.get(file))
+                    && repo.filesMap.get(file) != splitMap.get(file)) {
+                //Modified in both branch.
+                String a = "<<<<<<< HEAD";
+                String b = "=======";
+                String c = ">>>>>>>";
+                String givenContents = "";
+                String currContents = "";
+                if (givenMap.containsKey(file)) {
+                    givenContents = readContentsAsString(givenMap.get(file));
+                } else if (!repo.filesMap.containsKey(file)) {
+                    //Deleted in both branch, but somehow created.
                     continue;
+                } else {
+                    currContents = readContentsAsString(file);
                 }
-
+                String res = a + givenContents + b + currContents + c;
+                writeContents(file, res);
+                continue;
+            } else {
+                // A file came out of nowhere :)
+                continue;
             }
+
         }
     }
 
