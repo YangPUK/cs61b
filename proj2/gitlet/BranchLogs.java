@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
 import static gitlet.Utils.*;
 
 public class BranchLogs implements Serializable {
@@ -107,6 +109,65 @@ public class BranchLogs implements Serializable {
         }
         exitWithError("No commit with that id exists.");
         return null;
+    }
+
+    public static void resetBranch(String hash) {
+        if (hash == null) {
+            exitWithError("Hash is null");
+        }
+        int n = hash.length();
+        if (n <= 40) {
+            List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
+            for (String branch : branches) {
+                BranchLogs branchLogs = BranchLogs.readBranch(branch);
+                for (Node node : branchLogs.branchList) {
+                    if (node.hash.substring(0, n).equals(hash)) {
+                        branchLogs.resetBranches(hash);
+                        Repository.checkoutHelper(branch, node.filesMap);
+                    }
+                }
+            }
+        }
+        exitWithError("No commit with that id exists.");
+    }
+
+    private void resetList(String hash) {
+        int n = hash.length();
+        for (Node node : branchList) {
+            if (node.hash.substring(0, n).equals(hash)) {
+                int i = branchList.indexOf(node);
+                int size = branchList.size();
+                branchList.subList(i + 1, size).clear();
+            }
+        }
+    }
+
+    private void resetBranches(String hash) {
+        List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
+        Repository repo = Repository.loadRepo();
+        BranchLogs branchLogs = this;
+        TreeSet<String> keepBranches = new TreeSet<>();
+        //Recursive find the original split point, and cutoff branchList.
+        while (branchLogs.parentBranch != null) {
+            keepBranches.add(branch);
+            branchLogs.resetList(hash);
+            repo.setPointer(branchLogs.branch, hash);
+            hash = branchLogs.parentHash;
+            branchLogs.saveBranch();
+            branchLogs = readBranch(branchLogs.parentBranch);
+        }
+        branchLogs.resetList(hash);
+        keepBranches.add("master");
+        repo.setPointer(branchLogs.branch, hash);
+        repo.saveRepo();
+        branchLogs.saveBranch();
+        //Delete other branches
+        for (String branch : branches) {
+            if (!keepBranches.contains(branch)) {
+                join(Repository.LOGS_DIR, branch).delete();
+                Repository.rmBranch(branch);
+            }
+        }
     }
 
     public void saveBranch() {

@@ -273,6 +273,11 @@ public class Repository implements Serializable {
             exitWithError("No such branch exists.");
         }
         TreeMap<File, File> branchFilesMap = BranchLogs.findBranchLogs(branchHash);
+        Repository.checkoutHelper(branch, branchFilesMap);
+    }
+
+    public static void checkoutHelper(String branch, TreeMap<File, File> branchFilesMap) {
+        Repository repo = loadRepo();
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
@@ -296,13 +301,6 @@ public class Repository implements Serializable {
         repo.workingBranch = branch;
         repo.filesMap = branchFilesMap;
         repo.saveRepo();
-    }
-
-    public static void reset(String hash) {
-        Repository repo = loadRepo();
-        if (repo.branchesPMap.containsValue(hash)) {
-            checkoutBranch(repo.branchesPMap.get(hash));
-        }
     }
 
     //When create a new branch, set a new pointer in the pointerMap.
