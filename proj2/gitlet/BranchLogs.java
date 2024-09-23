@@ -151,7 +151,7 @@ public class BranchLogs implements Serializable {
                         Repository repo = Repository.loadRepo();
                         repo.setPointer(branch, node.hash);
                         branchLogs.setHead(node.hash);
-                        Repository.checkoutHelper(branch, node.filesMap);
+                        Repository.resetHelper(branch, node.filesMap);
                         return;
                     }
                 }

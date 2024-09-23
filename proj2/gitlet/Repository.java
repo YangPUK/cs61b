@@ -272,13 +272,40 @@ public class Repository implements Serializable {
         Repository.checkoutHelper(branch, branchFilesMap);
     }
 
-    public static void checkoutHelper(String branch, TreeMap<File, File> branchFilesMap) {
+    public static void resetHelper(String branch, TreeMap<File, File> branchFilesMap) {
         Repository repo = loadRepo();
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
             if (repo.stagedFiles.contains(fileName)
                     && (!repo.filesMap.containsKey(file)
+                    && branchFilesMap.containsKey(file))) {
+                exitWithError("There is an untracked file in the way;"
+                        + " delete it, or add and commit it first.");
+            }
+        }
+        for (String fileName : existFiles) {
+            File file = join(CWD, fileName);
+            if (!branchFilesMap.containsKey(file) && repo.filesMap.containsKey(file)) {
+                file.delete();
+            }
+        }
+        for (File file : branchFilesMap.keySet()) {
+            writeContents(file, readContents(branchFilesMap.get(file)));
+        }
+        repo.clear();
+        repo.workingBranch = branch;
+        repo.filesMap = branchFilesMap;
+        repo.saveRepo();
+    }
+
+    public static void checkoutHelper(String branch, TreeMap<File, File> branchFilesMap) {
+        Repository repo = loadRepo();
+        List<String> existFiles = plainFilenamesIn(CWD);
+        for (String fileName : existFiles) {
+            File file = join(CWD, fileName);
+            if (repo.stagedFiles.contains(fileName)
+                    || (!repo.filesMap.containsKey(file)
                     && branchFilesMap.containsKey(file))) {
                 exitWithError("There is an untracked file in the way;"
                         + " delete it, or add and commit it first.");
