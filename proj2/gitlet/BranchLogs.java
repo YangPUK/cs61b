@@ -15,7 +15,7 @@ public class BranchLogs implements Serializable {
     private File room = Repository.LOGS_DIR;
     public String parentBranch;
     public String parentHash;
-//    public String headHash;
+    public String headHash;
     public TreeMap<File, File> headMap;
 
     public static class Node implements Serializable {
@@ -41,7 +41,7 @@ public class BranchLogs implements Serializable {
     public BranchLogs(String branch, Repository repo) {
         this.parentBranch = repo.workingBranch;
         this.parentHash = repo.workingHash();
-//        this.headHash = parentHash;
+        this.headHash = parentHash;
         this.headMap = repo.filesMap;
         this.branch = branch;
         branchList = new LinkedList<>();
@@ -51,7 +51,7 @@ public class BranchLogs implements Serializable {
     public void add(String hash, String message, String timeStamp, TreeMap<File, File> filesMap) {
         Node node = new Node(hash, message, timeStamp, filesMap);
         branchList.addFirst(node);
-//        headHash = hash;
+        headHash = hash;
         headMap = filesMap;
     }
 
@@ -66,6 +66,17 @@ public class BranchLogs implements Serializable {
 
 
     public void showLogs() {
+        for (Node node : branchList) {
+            if(node.hash != headHash) {
+                System.out.println("===");
+                System.out.println("commit " + node.hash);
+                System.out.println("Date: " + node.timeStamp);
+                System.out.println(node.message + "\n");
+            }
+        }
+    }
+
+    public void showGLogs() {
         for (Node node : branchList) {
             System.out.println("===");
             System.out.println("commit " + node.hash);
@@ -122,7 +133,9 @@ public class BranchLogs implements Serializable {
                 BranchLogs branchLogs = BranchLogs.readBranch(branch);
                 for (Node node : branchLogs.branchList) {
                     if (node.hash.substring(0, n).equals(hash)) {
-                        branchLogs.resetBranches(hash);
+                        Repository repo = Repository.loadRepo();
+                        repo.setPointer(branch, node.hash);
+                        branchLogs.setHead(node.hash);
                         Repository.checkoutHelper(branch, node.filesMap);
                         return;
                     }
@@ -130,6 +143,11 @@ public class BranchLogs implements Serializable {
             }
         }
         exitWithError("No commit with that id exists.");
+    }
+
+    private void setHead(String hash) {
+        headHash = hash;
+        saveBranch();
     }
 
     private void resetList(String hash) {

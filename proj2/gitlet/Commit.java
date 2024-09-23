@@ -70,7 +70,7 @@ public class Commit {
         List<String> branchFiles = plainFilenamesIn(Repository.LOGS_DIR);
         for (String branchName : branchFiles) {
             BranchLogs branchLogs = BranchLogs.readBranch(branchName);
-            branchLogs.showLogs();
+            branchLogs.showGLogs();
         }
     }
 

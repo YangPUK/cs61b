@@ -92,7 +92,7 @@ public class Main {
             case "reset":
                 needInit();
                 validateNumArgs("reset", args, 2);
-//                BranchLogs.resetBranch(args[1]);
+                BranchLogs.resetBranch(args[1]);
                 break;
             case "merge":
                 needInit();

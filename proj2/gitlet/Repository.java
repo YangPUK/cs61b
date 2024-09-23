@@ -85,6 +85,7 @@ public class Repository implements Serializable {
     public void clear() {
         stagedFiles.clear();
         removedFiles.clear();
+        saveRepo();
     }
 
     private static boolean fileCompare(File file1, File file2) {
@@ -301,6 +302,7 @@ public class Repository implements Serializable {
     //When create a new branch, set a new pointer in the pointerMap.
     public void setPointer(String branch, String hash) {
         branchesPMap.put(branch, hash);
+        saveRepo();
     }
     public String workingHash() {
         return branchesPMap.get(workingBranch);
@@ -308,6 +310,7 @@ public class Repository implements Serializable {
 
     public void rmPointer(String branch) {
         branchesPMap.remove(branch);
+        saveRepo();
     }
 
 }

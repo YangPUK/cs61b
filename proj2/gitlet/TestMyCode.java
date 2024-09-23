@@ -34,7 +34,12 @@ public class TestMyCode {
     }
 
     @Test
-    public void testInit() {
+    public void testFine() {
+        setup1();
+        setup2();
+        rm("f.txt");
+        commit("Remove one file");
+
     }
 
     @Test
