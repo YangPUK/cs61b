@@ -277,7 +277,7 @@ public class Repository implements Serializable {
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
-            if (repo.stagedFiles.contains(file)
+            if (repo.stagedFiles.contains(fileName)
                     || (!repo.filesMap.containsKey(file)
                     && branchFilesMap.containsKey(file))) {
                 exitWithError("There is an untracked file in the way;"

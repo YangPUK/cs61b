@@ -51,15 +51,18 @@ public class TestMyCode {
         rm("f.txt");
         add("k.txt");
         commit("Add k remove f");
+        System.out.println("other logs");
         log();
         checkout("master");
-//        log();
+        System.out.println("master logs");
+        log();
         add("m.txt");
     }
 
     @Test
     public void testRest() {
-        String[] reset = {"reset", "b620"};
+        commit("add m");
+        String[] reset = {"reset", "2c7cf20"};
         Main.main(reset);
         log();
     }
