@@ -61,8 +61,7 @@ public class TestMyCode {
 
     @Test
     public void testRest() {
-        commit("add m");
-        String[] reset = {"reset", "2c7cf20"};
+        String[] reset = {"reset", "300265da"};
         Main.main(reset);
         log();
     }
