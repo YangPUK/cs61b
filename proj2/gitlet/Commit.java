@@ -63,7 +63,7 @@ public class Commit {
         }
         BranchLogs headBranch = BranchLogs.readBranch(head);
         headBranch.showLogs();
-        masterBranch.showLogs();
+        headBranch.parentLogs();
     }
 
     public static void showGlobalLogs() {

@@ -63,7 +63,7 @@ public class BranchLogs implements Serializable {
         }
         return false;
     }
-
+    
     private int getHeadIndex() {
         int index = 0;
         for (Node node : branchList) {
@@ -75,6 +75,11 @@ public class BranchLogs implements Serializable {
         return -1;
     }
 
+    public void parentLogs() {
+        BranchLogs parentBranchLogs = readBranch(parentBranch);
+        parentBranchLogs.headHash = parentHash;
+        parentBranchLogs.showLogs();
+    }
 
     public void showLogs() {
         for (int i = getHeadIndex(); i < branchList.size(); i++) {

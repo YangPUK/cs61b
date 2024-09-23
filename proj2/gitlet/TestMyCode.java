@@ -11,7 +11,6 @@ import static gitlet.Utils.*;
 
 public class TestMyCode {
     String[] init = {"init"};
-    String[] branch = {"branch", "other"};
     String[] reset = {"reset" };
     String[] checkout = {"checkout", "test"};
     String[] log = {"log"};
@@ -22,6 +21,10 @@ public class TestMyCode {
     }
     private void add(String fileName) {
         String[] add = {"add", fileName};
+        File file = join(CWD, fileName);
+        if (!file.exists()) {
+            cFile(fileName);
+        }
         Main.main(add);
     }
     private void commit(String msg) {
@@ -33,22 +36,32 @@ public class TestMyCode {
         String[] rm = {"rm", fileName};
         Main.main(rm);
     }
+    private void checkout(String branch) {
+        Main.main(new String[]{"checkout", branch});
+    }
 
     @Test
     public void testFine() {
         setup1();
+        branch("other");
+        add("h.txt");
+        rm("g.txt");
+        commit("Add h remove g");
+        checkout("other");
         rm("f.txt");
-        commit("Remove one file");
+        add("k.txt");
+        commit("Add k remove f");
         log();
-
-
-
+        checkout("master");
+//        log();
+        add("m.txt");
     }
 
     @Test
     public void testRest() {
         String[] reset = {"reset", "b620"};
         Main.main(reset);
+        log();
     }
 
     @Test
@@ -74,6 +87,12 @@ public class TestMyCode {
     public void setup2() {
     }
     public void log() {
-        Main.main(log);
+        Main.main(new String[]{"log"});
+    }
+    private void branch(String branch) {
+        Main.main(new String[]{"branch", branch});
+    }
+    private void rest (String hash) {
+        Main.main(new String[]{"rest", hash});
     }
 }
