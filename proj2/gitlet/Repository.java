@@ -252,8 +252,8 @@ public class Repository implements Serializable {
                     && !fileCompare(repo.filesMap.get(fileName), splitMap.get(fileName))) {
                 //Modified in both branch.
                 String a = "<<<<<<< HEAD\n";
-                String b = "=======\n";
-                String c = ">>>>>>>";
+                String b = "\n=======\n";
+                String c = "\n>>>>>>>";
                 String givenContents = "";
                 String currContents = "";
                 if (givenMap.containsKey(fileName)) {
@@ -264,7 +264,7 @@ public class Repository implements Serializable {
                 if (repo.filesMap.containsKey(fileName)) {
                     currContents = readContentsAsString(file);
                 }
-                String res = a.concat(givenContents).concat(b).concat(c);
+                String res = a.concat(givenContents).concat(b).concat(currContents).concat(c);
                 writeContents(file, res);
                 hasConflict = true;
                 continue;
