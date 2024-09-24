@@ -261,8 +261,8 @@ public class Repository implements Serializable {
                     && !fileCompare(repo.filesMap.get(fileName), splitMap.get(fileName))) {
                 //Modified in both branch.
                 String a = "<<<<<<< HEAD\n";
-                String b = "\n=======\n";
-                String c = "\n>>>>>>>";
+                String b = "=======\n";
+                String c = ">>>>>>>";
                 String givenContents = "";
                 String currContents = "";
                 if (givenMap.containsKey(fileName)) {

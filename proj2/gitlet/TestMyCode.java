@@ -79,7 +79,7 @@ public class TestMyCode {
     }
 
     public void setup1() {
-        String[] wugs ={"this is a wug" , "this is not a wug", "and yet another wug", "another wug"};
+        String[] wugs ={"This is a wug." , "This is not a wug.", "And yet another wug.", "Another wug."};
         wug = new TreeMap<>();
         wug.put("wug", wugs[0]);
         wug.put("notwug", wugs[1]);
