@@ -262,7 +262,7 @@ public class Repository implements Serializable {
                 //Modified in both branch.
                 String a = "<<<<<<< HEAD\n";
                 String b = "=======\n";
-                String c = ">>>>>>>";
+                String c = ">>>>>>>\n";
                 String givenContents = "";
                 String currContents = "";
                 if (givenMap.containsKey(fileName)) {
