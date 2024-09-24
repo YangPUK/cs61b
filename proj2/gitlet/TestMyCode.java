@@ -14,10 +14,15 @@ public class TestMyCode {
     String[] reset = {"reset" };
     String[] checkout = {"checkout", "test"};
     String[] log = {"log"};
+    TreeMap<String, String> wug;
 
     private void cFile(String fileName) {
         File file = join(CWD, fileName);
         writeContents(file, valueOf(Math.random() * 10));
+    }
+    private void wAdd(String fileName, String w) {
+        File file = join(CWD, fileName);
+        writeC
     }
     private void add(String fileName) {
         String[] add = {"add", fileName};
@@ -26,6 +31,13 @@ public class TestMyCode {
 //            cFile(fileName);
 //        }
         Main.main(add);
+    }
+    private void madd(String fileName) {
+        File file = join(CWD, fileName);
+        if (!file.exists()) {
+            writeContents(file, valueOf(Math.random() * 10));
+        }
+        add(fileName);
     }
     private void commit(String msg) {
         String[] commit = {"commit", msg};
@@ -50,16 +62,7 @@ public class TestMyCode {
     public void testMerge() {
         setup1();
         branch("other");
-        cFile("h.txt");
-        add("h.txt");
-        rm("g.txt");
-        commit("Add h remove g");
-        checkout("other");
-        rm("f.txt");
-        cFile("k.txt");
-        add("k.txt");
-        commit("Add k remove f");
-        checkout("master");
+
         merge("other");
         log();
     }
@@ -72,6 +75,11 @@ public class TestMyCode {
         add("g.txt");
         add("f.txt");
         commit("Two files");
+        String[] wugs ={"this is a wug" , "this is not a wug", "and yet another wug", "another wug"};
+        wug.put("wug", wugs[0]);
+        wug.put("notwug", wugs[1]);
+        wug.put("wug3", wugs[2]);
+        wug.put("wug2", wugs[3]);
     }
     public void log() {
         Main.main(new String[]{"log"});
