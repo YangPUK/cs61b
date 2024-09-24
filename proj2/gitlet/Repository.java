@@ -198,7 +198,7 @@ public class Repository implements Serializable {
         }
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
         BranchLogs currBranchLogs = BranchLogs.readBranch(repo.headBranch);
-        if (currBranchLogs.parentBranch.equals(branch)) {
+        if (currBranchLogs.parentBranch.equals(repo.branchesPMap.get(branch))) {
             System.out.println("Given branch is an ancestor of"
                     + " the current branch.");
             System.exit(0);
