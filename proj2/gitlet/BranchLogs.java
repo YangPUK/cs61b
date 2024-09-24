@@ -32,7 +32,7 @@ public class BranchLogs implements Serializable {
             this.filesMap = filesMap;
         }
         public void addParents(String[] parents) {
-            parents = parents;
+            this.parents = parents;
         }
     }
 
@@ -62,8 +62,8 @@ public class BranchLogs implements Serializable {
         saveBranch();
     }
 
-    public void mergeAdd(String hash, String message, String timeStamp, TreeMap<String, File> filesMap
-                        , String[] parents) {
+    public void mergeAdd(String hash, String message, String timeStamp,
+                         TreeMap<String, File> filesMap, String[] parents) {
         Node node = new Node(hash, message, timeStamp, filesMap);
         node.addParents(parents);
         branchList.addFirst(node);

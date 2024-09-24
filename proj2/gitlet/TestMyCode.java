@@ -10,34 +10,27 @@ import static gitlet.Utils.*;
 
 
 public class TestMyCode {
-    String[] init = {"init"};
-    String[] reset = {"reset" };
-    String[] checkout = {"checkout", "test"};
-    String[] log = {"log"};
-    TreeMap<String, String> wug;
+    private TreeMap<String, String> wug;
 
     private void cFile(String fileName) {
         File file = join(CWD, fileName);
         writeContents(file, valueOf(Math.random() * 10));
     }
-    private void wAdd(String fileName, String w) {
+    private void add(String fileName, String w) {
         File file = join(CWD, fileName);
-        writeC
-    }
-    private void add(String fileName) {
-        String[] add = {"add", fileName};
-        File file = join(CWD, fileName);
-//        if (!file.exists()) {
-//            cFile(fileName);
-//        }
-        Main.main(add);
+        writeContents(file, wug.get(w));
     }
     private void madd(String fileName) {
+        String[] add = {"add", fileName};
+        File file = join(CWD, fileName);
+        Main.main(add);
+    }
+    private void wadd(String fileName) {
         File file = join(CWD, fileName);
         if (!file.exists()) {
             writeContents(file, valueOf(Math.random() * 10));
         }
-        add(fileName);
+        madd(fileName);
     }
     private void commit(String msg) {
         String[] commit = {"commit", msg};
@@ -55,32 +48,6 @@ public class TestMyCode {
         String[] merge = {"merge", branch};
         Main.main(merge);
     }
-
-
-
-    @Test
-    public void testMerge() {
-        setup1();
-        branch("other");
-
-        merge("other");
-        log();
-    }
-
-    @Test
-    public void setup1() {
-        Main.main(init);
-        cFile("f.txt");
-        cFile("g.txt");
-        add("g.txt");
-        add("f.txt");
-        commit("Two files");
-        String[] wugs ={"this is a wug" , "this is not a wug", "and yet another wug", "another wug"};
-        wug.put("wug", wugs[0]);
-        wug.put("notwug", wugs[1]);
-        wug.put("wug3", wugs[2]);
-        wug.put("wug2", wugs[3]);
-    }
     public void log() {
         Main.main(new String[]{"log"});
     }
@@ -90,4 +57,36 @@ public class TestMyCode {
     private void rest (String hash) {
         Main.main(new String[]{"rest", hash});
     }
+
+
+
+    @Test
+    public void testMerge() {
+        setup1();
+        branch("other");
+        add("h", "wug2");
+        rm("g");
+        add("f", "wug2");
+        commit("Add h, remove g, change f");
+        checkout("other");
+        add("f", "notwug");
+        add("k", "wug3");
+        commit("Add f, change f");
+        checkout("master");
+        log();
+        merge("other");
+    }
+
+    public void setup1() {
+        String[] wugs ={"this is a wug" , "this is not a wug", "and yet another wug", "another wug"};
+        wug.put("wug", wugs[0]);
+        wug.put("notwug", wugs[1]);
+        wug.put("wug3", wugs[2]);
+        wug.put("wug2", wugs[3]);
+        Main.main(new String[] {"init"});
+        add("f", "wug");
+        add("g", "notwug");
+        commit("Two files f & g");
+    }
+
 }
