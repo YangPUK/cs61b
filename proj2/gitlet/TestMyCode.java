@@ -22,9 +22,9 @@ public class TestMyCode {
     private void add(String fileName) {
         String[] add = {"add", fileName};
         File file = join(CWD, fileName);
-        if (!file.exists()) {
-            cFile(fileName);
-        }
+//        if (!file.exists()) {
+//            cFile(fileName);
+//        }
         Main.main(add);
     }
     private void commit(String msg) {
@@ -85,11 +85,15 @@ public class TestMyCode {
     public void testMerge() {
         setup1();
         branch("other");
+        cFile("h.txt");
+        cFile("wug2.txt");
         add("h.txt");
         rm("g.txt");
         commit("Add h remove g");
         checkout("other");
         rm("f.txt");
+        cFile("k.txt");
+        cFile("wug3.txt");
         add("k.txt");
         commit("Add k remove f");
         checkout("master");
@@ -102,6 +106,8 @@ public class TestMyCode {
         Main.main(init);
         cFile("f.txt");
         cFile("g.txt");
+        cFile("wug.txt");
+        cFile("notwug.txt");
         add("g.txt");
         add("f.txt");
         commit("Two files");

@@ -225,9 +225,7 @@ public class Repository implements Serializable {
                     + repo.headBranch + ".");
             return;
         }
-    }
-    /*
-    private static void mergeHelper(String branch) {
+        Boolean hasConflict = false;
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
             if (givenMap.get(file) != (splitMap.get(file))
@@ -243,6 +241,9 @@ public class Repository implements Serializable {
             } else if (givenMap.get(file) == (splitMap.get(file))
                     && repo.filesMap.get(file) != splitMap.get(file)) {
                 //Modified in currBranch, not in givenBranch.
+//                if (!repo.filesMap.containsKey(file)) {     //NOT SURE!
+//                    file.delete();
+//                }
                 continue;
             } else if (givenMap.get(file) != (splitMap.get(file))
                     && repo.filesMap.get(file) != splitMap.get(file)) {
@@ -257,26 +258,21 @@ public class Repository implements Serializable {
                 } else if (!repo.filesMap.containsKey(file)) {
                     //Deleted in both branch, but somehow created.
                     continue;
-                } else {
+                }
+                if (repo.filesMap.containsKey(file)) {
                     currContents = readContentsAsString(file);
                 }
                 String res = a.concat(givenContents).concat(b).concat(c);
                 writeContents(file, res);
-                type = "conflict";
-                continue;
-            } else {
-                // A file came out of nowhere :)
+                hasConflict = true;
                 continue;
             }
         }
-        if (type == "conflict") {
-            Commit.mergeCommit("Encountered a merge conflict.");
-        } else if (type == "normal") {
-            Commit.mergeCommit("Merged " + branch + " into "
-                    + repo.workingBranch + ".");
+        if (hasConflict) {
+            System.out.println("Encountered a merge conflict.");
         }
+        Commit.mergeCommit("Merged " + branch + " into " + repo.headBranch + ".");
     }
-    */
 
     // Checkout a file to previous version.
     public static void checkout(String fileName) {
