@@ -179,7 +179,7 @@ public class Repository implements Serializable {
         if (repo.workingBranch.equals(branch) || branch.equals("master")) {
             exitWithError("Cannot remove the current branch.");
         } else if (!repo.branchesPMap.containsKey(branch)) {
-            exitWithError("A branch with that name does not exists");
+            exitWithError("A branch with that name does not exists.");
         }
         repo.branchesPMap.remove(branch);
         join(LOGS_DIR, branch).delete();
@@ -188,30 +188,47 @@ public class Repository implements Serializable {
 
     public static void mergeBranch(String branch) {
         Repository repo = loadRepo();
+        // Failure cases.
+        if (!repo.branchesPMap.containsKey(branch)) {
+            exitWithError("A branch with that name does not exists.");
+        } else if (!repo.stagedFiles.isEmpty() || !repo.removedFiles.isEmpty()) {
+            exitWithError("You have uncommitted changes.");
+        } else if (repo.workingBranch.equals(branch)) {
+            exitWithError("Cannot merge a branch with itself.");
+        }
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
         BranchLogs currBranchLogs = BranchLogs.readBranch(repo.workingBranch);
-        if (currBranchLogs.contains(givenBranchLogs.headHash)) {
+        if (currBranchLogs.parentBranch.equals(branch)) {
             System.out.println("Given branch is an ancestor of"
                     + " the current branch.");
-            return;
-        } else if (givenBranchLogs.parentHash.equals(repo.workingHash())) {
-            checkout(branch);
-            System.out.println("Current branch fast-forwarded.");
-            return;
+            System.exit(0);
         }
-        BranchLogs parentBranchLogs;
-        BranchLogs childBranchLogs;
-        if (currBranchLogs.parentHash.equals(branch)) {
-            parentBranchLogs = currBranchLogs;
-            childBranchLogs = givenBranchLogs;
-        } else {
-            parentBranchLogs = givenBranchLogs;
-            childBranchLogs = currBranchLogs;
-        }
-        String splitHash = childBranchLogs.parentHash;
-        TreeMap<File, File> splitMap = childBranchLogs.findBranchLogs(splitHash);
+        String splitHash = givenBranchLogs.parentHash;
+        TreeMap<File, File> splitMap = givenBranchLogs.findBranchLogs(splitHash);
         TreeMap<File, File> givenMap = givenBranchLogs.headMap;
+        TreeMap<File, File> currMap = repo.filesMap;
         List<String> existFiles = plainFilenamesIn(CWD);
+        for (String fileName : existFiles) {
+            File file = join(CWD, fileName);
+            if (!currMap.containsKey(file) && (givenMap.containsKey(file)
+                    || (!givenMap.containsKey(file) && splitMap.containsKey(file)))) {
+                System.out.println("There is an untracked file in the way; delete it,"
+                        + " or add and commit it first.");
+                System.exit(0);
+            }
+        }
+        if (givenBranchLogs.parentHash.equals(repo.workingHash())) {
+            System.out.println("Current branch fast-forwarded.");
+            mergeHelper();
+            repo.clear();
+            repo.filesMap = givenMap;
+            Commit.mergeCommit("Merged " + branch + " into "
+                    + repo.workingBranch + ".");
+            return;
+        }
+    }
+
+    private static void mergeHelper(String branch) {
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
             if (givenMap.get(file) != (splitMap.get(file))
@@ -231,8 +248,8 @@ public class Repository implements Serializable {
             } else if (givenMap.get(file) != (splitMap.get(file))
                     && repo.filesMap.get(file) != splitMap.get(file)) {
                 //Modified in both branch.
-                String a = "<<<<<<< HEAD";
-                String b = "=======";
+                String a = "<<<<<<< HEAD\n";
+                String b = "=======\n";
                 String c = ">>>>>>>";
                 String givenContents = "";
                 String currContents = "";
@@ -244,14 +261,20 @@ public class Repository implements Serializable {
                 } else {
                     currContents = readContentsAsString(file);
                 }
-                String res = a + givenContents + b + currContents + c;
+                String res = a.concat(givenContents).concat(b).concat(c);
                 writeContents(file, res);
+                type = "conflict";
                 continue;
             } else {
                 // A file came out of nowhere :)
                 continue;
             }
-
+        }
+        if (type == "conflict") {
+            Commit.mergeCommit("Encountered a merge conflict.");
+        } else if (type == "normal") {
+            Commit.mergeCommit("Merged " + branch + " into "
+                    + repo.workingBranch + ".");
         }
     }
 
@@ -320,15 +343,7 @@ public class Repository implements Serializable {
                         + " delete it, or add and commit it first.");
             }
         }
-        for (String fileName : existFiles) {
-            File file = join(CWD, fileName);
-            if (!branchFilesMap.containsKey(file) && repo.filesMap.containsKey(file)) {
-                file.delete();
-            }
-        }
-        for (File file : branchFilesMap.keySet()) {
-            writeContents(file, readContents(branchFilesMap.get(file)));
-        }
+        checkoutMap(branchFilesMap);
         repo.clear();
         repo.workingBranch = branch;
         repo.filesMap = branchFilesMap;
@@ -347,19 +362,25 @@ public class Repository implements Serializable {
                         + " delete it, or add and commit it first.");
             }
         }
-        for (String fileName : existFiles) {
-            File file = join(CWD, fileName);
-            if (!branchFilesMap.containsKey(file) && repo.filesMap.containsKey(file)) {
-                file.delete();
-            }
-        }
-        for (File file : branchFilesMap.keySet()) {
-            writeContents(file, readContents(branchFilesMap.get(file)));
-        }
+        checkoutMap(branchFilesMap);
         repo.clear();
         repo.workingBranch = branch;
         repo.filesMap = branchFilesMap;
         repo.saveRepo();
+    }
+
+    private static void checkoutMap(TreeMap<File, File> theMap) {
+        Repository repo = loadRepo();
+        List<String> existFiles = plainFilenamesIn(CWD);
+        for (String fileName : existFiles) {
+            File file = join(CWD, fileName);
+            if (!theMap.containsKey(file) && repo.filesMap.containsKey(file)) {
+                file.delete();
+            }
+        }
+        for (File file : theMap.keySet()) {
+            writeContents(file, readContents(theMap.get(file)));
+        }
     }
 
     //When create a new branch, set a new pointer in the pointerMap.

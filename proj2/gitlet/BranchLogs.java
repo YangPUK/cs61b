@@ -36,6 +36,8 @@ public class BranchLogs implements Serializable {
         this.branch = branch;
         branchList = new LinkedList<>();
         this.room = join(room, branch);
+        this.parentBranch = "I am an orphan";
+        this.parentHash = "I am an orphan";
     }
 
     public BranchLogs(String branch, Repository repo) {

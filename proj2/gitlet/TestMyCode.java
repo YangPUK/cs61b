@@ -39,6 +39,10 @@ public class TestMyCode {
     private void checkout(String branch) {
         Main.main(new String[]{"checkout", branch});
     }
+    private void merge(String branch) {
+        String[] merge = {"merge", branch};
+        Main.main(merge);
+    }
 
     @Test
     public void testFine() {
@@ -78,13 +82,19 @@ public class TestMyCode {
     }
 
     @Test
-    public void myTest() {
-        List<String> a = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            a.add(valueOf(i));
-        }
-        a.subList(0, 5).clear();
-        System.out.println(a);
+    public void testMerge() {
+        setup1();
+        branch("other");
+        add("h.txt");
+        rm("g.txt");
+        commit("Add h remove g");
+        checkout("other");
+        rm("f.txt");
+        add("k.txt");
+        commit("Add k remove f");
+        checkout("master");
+        merge("other");
+        log();
     }
 
     @Test
@@ -95,9 +105,6 @@ public class TestMyCode {
         add("g.txt");
         add("f.txt");
         commit("Two files");
-    }
-    @Test
-    public void setup2() {
     }
     public void log() {
         Main.main(new String[]{"log"});
