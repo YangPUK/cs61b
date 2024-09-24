@@ -43,19 +43,29 @@ public class Commit {
         } else if (message.isBlank()) {
             exitWithError("Please enter a commit message.");
         }
-        String commit = message;
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         String timeStamp = sdf.format(new Date());
         String hash = sha1(message, timeStamp, repo.filesMap.toString());
-        repo.record(hash, commit, timeStamp);
+        repo.record(hash, message, timeStamp);
+
     }
 
     //make a merge commit.
-    public static void mergeCommit(String msg) {}
+    public static void mergeCommit(String branch) {
+        Repository repo = Repository.loadRepo();
+        String message = "Merged " + branch + " into " + repo.headBranch + ".";
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
+        String timeStamp = sdf.format(new Date());
+        String hash = sha1(message, timeStamp, repo.filesMap.toString());
+        repo.setPointer(repo.headBranch, hash);
+        String[] parents = {repo.getBranchHash(repo.headBranch), repo.getBranchHash(branch)};
+        BranchLogs currBranch = BranchLogs.readBranch(repo.headBranch);
+        currBranch.mergeAdd(hash, message, timeStamp, repo.filesMap, parents);
+    }
 
     public static void showLogs() {
         Repository repo = Repository.loadRepo();
-        String head = repo.workingBranch;
+        String head = repo.headBranch;
         BranchLogs masterBranch = BranchLogs.readMaster();
         if (head.equals("master")) {
             masterBranch.showLogs();

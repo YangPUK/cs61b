@@ -3,7 +3,6 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -28,12 +27,12 @@ public class Repository implements Serializable {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File LOGS_DIR = join(GITLET_DIR, "logs");
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
-    private TreeMap<String, String> branchesPMap;   //Pointer Map
+    public TreeMap<String, String> branchesPMap;   //Pointer Map
     public TreeMap<File, File> filesMap;
     public TreeSet<String> stagedFiles = new TreeSet<>();
     public TreeSet<String> removedFiles = new TreeSet<>();
     public TreeSet<String> mergeStagedFiles = new TreeSet<>();
-    public String workingBranch;
+    public String headBranch;
     public static final File REPO_ROOM = join(Repository.GITLET_DIR, "repo");
 
     public static void setupPeresitence() {
@@ -51,7 +50,7 @@ public class Repository implements Serializable {
     public Repository() {
         branchesPMap = new TreeMap<>();
         branchesPMap.put("master", null);
-        workingBranch = "master";
+        headBranch = "master";
         filesMap = new TreeMap<>();
     }
 
@@ -64,7 +63,7 @@ public class Repository implements Serializable {
     }
 
     public void record(String hash, String message, String timeStamp) {
-        BranchLogs headBranch = readObject(join(LOGS_DIR, workingBranch), BranchLogs.class);
+        BranchLogs headBranch = readObject(join(LOGS_DIR, this.headBranch), BranchLogs.class);
         for (String file : stagedFiles) {
             File addedFile = join(CWD, file);
             String fileHash = sha1(readContents(addedFile));
@@ -77,9 +76,8 @@ public class Repository implements Serializable {
             filesMap.remove(removedFile);
         }
         headBranch.add(hash, message, timeStamp, filesMap);
-        branchesPMap.put(workingBranch, hash);
+        branchesPMap.put(this.headBranch, hash);
         clear();
-        headBranch.saveBranch();
         this.saveRepo();
     }
 
@@ -146,7 +144,7 @@ public class Repository implements Serializable {
         Repository repo = loadRepo();
         System.out.println("=== Branches ===");
         for (String branch : repo.branchesPMap.keySet()) {
-            if (branch.equals(repo.workingBranch)) {
+            if (branch.equals(repo.headBranch)) {
                 System.out.print("*");
             }
             System.out.println(branch);
@@ -176,7 +174,7 @@ public class Repository implements Serializable {
 
     public static void rmBranch(String branch) {
         Repository repo = loadRepo();
-        if (repo.workingBranch.equals(branch) || branch.equals("master")) {
+        if (repo.headBranch.equals(branch) || branch.equals("master")) {
             exitWithError("Cannot remove the current branch.");
         } else if (!repo.branchesPMap.containsKey(branch)) {
             exitWithError("A branch with that name does not exists.");
@@ -193,11 +191,11 @@ public class Repository implements Serializable {
             exitWithError("A branch with that name does not exists.");
         } else if (!repo.stagedFiles.isEmpty() || !repo.removedFiles.isEmpty()) {
             exitWithError("You have uncommitted changes.");
-        } else if (repo.workingBranch.equals(branch)) {
+        } else if (repo.headBranch.equals(branch)) {
             exitWithError("Cannot merge a branch with itself.");
         }
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
-        BranchLogs currBranchLogs = BranchLogs.readBranch(repo.workingBranch);
+        BranchLogs currBranchLogs = BranchLogs.readBranch(repo.headBranch);
         if (currBranchLogs.parentBranch.equals(branch)) {
             System.out.println("Given branch is an ancestor of"
                     + " the current branch.");
@@ -219,15 +217,16 @@ public class Repository implements Serializable {
         }
         if (givenBranchLogs.parentHash.equals(repo.workingHash())) {
             System.out.println("Current branch fast-forwarded.");
-            mergeHelper();
+            checkoutMap(givenMap);
             repo.clear();
             repo.filesMap = givenMap;
+            repo.saveRepo();
             Commit.mergeCommit("Merged " + branch + " into "
-                    + repo.workingBranch + ".");
+                    + repo.headBranch + ".");
             return;
         }
     }
-
+    /*
     private static void mergeHelper(String branch) {
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
@@ -277,6 +276,7 @@ public class Repository implements Serializable {
                     + repo.workingBranch + ".");
         }
     }
+    */
 
     // Checkout a file to previous version.
     public static void checkout(String fileName) {
@@ -321,7 +321,7 @@ public class Repository implements Serializable {
     //Checkout to other branch.
     public static void checkoutBranch(String branch) {
         Repository repo = loadRepo();
-        if (repo.workingBranch.equals(branch)) {
+        if (repo.headBranch.equals(branch)) {
             exitWithError("No need to checkout the current branch.");
         }
         String branchHash = repo.branchesPMap.get(branch);
@@ -345,7 +345,7 @@ public class Repository implements Serializable {
         }
         checkoutMap(branchFilesMap);
         repo.clear();
-        repo.workingBranch = branch;
+        repo.headBranch = branch;
         repo.filesMap = branchFilesMap;
         repo.saveRepo();
     }
@@ -364,7 +364,7 @@ public class Repository implements Serializable {
         }
         checkoutMap(branchFilesMap);
         repo.clear();
-        repo.workingBranch = branch;
+        repo.headBranch = branch;
         repo.filesMap = branchFilesMap;
         repo.saveRepo();
     }
@@ -389,12 +389,16 @@ public class Repository implements Serializable {
         saveRepo();
     }
     public String workingHash() {
-        return branchesPMap.get(workingBranch);
+        return branchesPMap.get(headBranch);
     }
 
     public void rmPointer(String branch) {
         branchesPMap.remove(branch);
         saveRepo();
+    }
+
+    public String getBranchHash(String branch) {
+        return branchesPMap.get(branch);
     }
 
 }
