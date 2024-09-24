@@ -12,7 +12,7 @@ import static gitlet.Utils.*;
 /** Represents a gitlet repository.
  *  does at a high level.
  *
- *  @author eBean
+ *  @author eBean Deng
  */
 public class Repository implements Serializable {
     /**
