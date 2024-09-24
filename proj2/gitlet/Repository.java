@@ -217,6 +217,7 @@ public class Repository implements Serializable {
                         + " or add and commit it first.");
                 System.exit(0);
             }
+            break;
         }
         if (givenBranchLogs.parentHash.equals(repo.workingHash())) {
             System.out.println("Current branch fast-forwarded.");
@@ -272,8 +273,9 @@ public class Repository implements Serializable {
         for (String addFileName : givenMap.keySet()) {
             if (!existFiles.contains(addFileName)) {
                 if(splitMap.containsKey(addFileName) && !currMap.containsKey(addFileName)) {
-                    writeContents(join(CWD, addFileName), readContents(givenMap.get(addFileName)));
+                    continue;
                 }
+                writeContents(join(CWD, addFileName), readContents(givenMap.get(addFileName)));
             }
         }
         if (hasConflict) {
