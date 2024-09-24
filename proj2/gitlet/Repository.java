@@ -274,7 +274,8 @@ public class Repository implements Serializable {
                 if (repo.filesMap.containsKey(fileName)) {
                     currContents = readContentsAsString(file);
                 }
-                String res = a.concat(currContents).concat(b).concat(givenContents).concat(c);
+//                String res = a.concat(currContents).concat(b).concat(givenContents).concat(c);
+                String res = a + currContents + b + givenContents + c;
                 writeContents(file, res);
                 hasConflict = true;
                 continue;

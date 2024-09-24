@@ -104,7 +104,8 @@ public class BranchLogs implements Serializable {
             System.out.println("===");
             System.out.println("commit " + node.hash);
             if (node.parents != null) {
-                System.out.println("Merge" + node.parents[0] + " " + node.parents[1]);
+                System.out.println("Merge: " + node.parents[0].substring(0, 7)
+                        + " " + node.parents[1].substring(0, 7));
             }
             System.out.println("Date: " + node.timeStamp);
             System.out.println(node.message + "\n");
