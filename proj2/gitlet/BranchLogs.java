@@ -15,17 +15,17 @@ public class BranchLogs implements Serializable {
     public String parentBranch;
     public String parentHash;
     public String headHash;
-    public TreeMap<File, File> headMap;
+    public TreeMap<String, File> headMap;
 
     public static class Node implements Serializable {
         private String hash;
         private String message;
         private String timeStamp;
         private String[] parents;
-        public TreeMap<File, File> filesMap;
+        public TreeMap<String, File> filesMap;
 
 
-        public Node(String hash, String message, String timeStamp, TreeMap<File, File> filesMap) {
+        public Node(String hash, String message, String timeStamp, TreeMap<String, File> filesMap) {
             this.hash = hash;
             this.message = message;
             this.timeStamp = timeStamp;
@@ -54,7 +54,7 @@ public class BranchLogs implements Serializable {
         this.room = join(room, branch);
     }
 
-    public void add(String hash, String message, String timeStamp, TreeMap<File, File> filesMap) {
+    public void add(String hash, String message, String timeStamp, TreeMap<String, File> filesMap) {
         Node node = new Node(hash, message, timeStamp, filesMap);
         branchList.addFirst(node);
         headHash = hash;
@@ -62,7 +62,7 @@ public class BranchLogs implements Serializable {
         saveBranch();
     }
 
-    public void mergeAdd(String hash, String message, String timeStamp, TreeMap<File, File> filesMap
+    public void mergeAdd(String hash, String message, String timeStamp, TreeMap<String, File> filesMap
                         , String[] parents) {
         Node node = new Node(hash, message, timeStamp, filesMap);
         node.addParents(parents);
@@ -137,7 +137,7 @@ public class BranchLogs implements Serializable {
         }
     }
 
-    public static TreeMap<File, File> findBranchLogs(String hash) {
+    public static TreeMap<String, File> findBranchLogs(String hash) {
         if (hash == null) {
             exitWithError("Hash is null");
         }

@@ -28,7 +28,7 @@ public class Repository implements Serializable {
     public static final File LOGS_DIR = join(GITLET_DIR, "logs");
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
     public TreeMap<String, String> branchesPMap;   //Pointer Map
-    public TreeMap<File, File> filesMap;
+    public TreeMap<String, File> filesMap;
     public TreeSet<String> stagedFiles = new TreeSet<>();
     public TreeSet<String> removedFiles = new TreeSet<>();
     public TreeSet<String> mergeStagedFiles = new TreeSet<>();
@@ -68,12 +68,11 @@ public class Repository implements Serializable {
             File addedFile = join(CWD, file);
             String fileHash = sha1(readContents(addedFile));
             File storeFile = join(BLOBS_DIR, fileHash);
-            filesMap.put(addedFile, storeFile);
+            filesMap.put(file, storeFile);
             writeContents(storeFile, readContents(addedFile));
         }
         for (String file : removedFiles) {
-            File removedFile = join(CWD, file);
-            filesMap.remove(removedFile);
+            filesMap.remove(file);
         }
         headBranch.add(hash, message, timeStamp, filesMap);
         branchesPMap.put(this.headBranch, hash);
@@ -93,8 +92,6 @@ public class Repository implements Serializable {
                 return true;
             } else if (file1 == null || file2 == null) {
                 return false;
-            } else if (file1.toString() == file2.toString()) {
-                return true;
             } else if (file1.length() != file2.length()) {
                 return false;
             }
@@ -111,13 +108,13 @@ public class Repository implements Serializable {
             exitWithError("File does not exist.");
         } else if (repo.stagedFiles.contains(fileName)) {
             return;
-        } else if (!repo.filesMap.containsKey(addedFile)) {
+        } else if (!repo.filesMap.containsKey(fileName)) {
             // Remove and add the same file.
             repo.stagedFiles.add(fileName);
             repo.saveRepo();
             return;
         }   //Tracked
-        File oddFile = repo.filesMap.get(addedFile);
+        File oddFile = repo.filesMap.get(fileName);
         if (!fileCompare(oddFile, addedFile)) {
             repo.stagedFiles.add(fileName);
             repo.saveRepo();
@@ -134,7 +131,7 @@ public class Repository implements Serializable {
         if (repo.stagedFiles.contains(fileName)) {
             repo.stagedFiles.remove(fileName);
             repo.saveRepo();
-        } else if (repo.filesMap.containsKey(removedFile)) {   // Not Staged, but tracked.
+        } else if (repo.filesMap.containsKey(fileName)) {   // Not Staged, but tracked.
             repo.removedFiles.add(fileName);
             // Delete the file.
             if (removedFile.exists()) {
@@ -208,14 +205,14 @@ public class Repository implements Serializable {
             System.exit(0);
         }
         String splitHash = givenBranchLogs.parentHash;
-        TreeMap<File, File> splitMap = givenBranchLogs.findBranchLogs(splitHash);
-        TreeMap<File, File> givenMap = givenBranchLogs.headMap;
-        TreeMap<File, File> currMap = repo.filesMap;
+        TreeMap<String, File> splitMap = givenBranchLogs.findBranchLogs(splitHash);
+        TreeMap<String, File> givenMap = givenBranchLogs.headMap;
+        TreeMap<String, File> currMap = repo.filesMap;
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
-            if (!currMap.containsKey(file) && (givenMap.containsKey(file)
-                    || (!givenMap.containsKey(file) && splitMap.containsKey(file)))) {
+            if (!currMap.containsKey(fileName) && (givenMap.containsKey(fileName)
+                    || (!givenMap.containsKey(fileName) && splitMap.containsKey(fileName)))) {
                 System.out.println("There is an untracked file in the way; delete it,"
                         + " or add and commit it first.");
                 System.exit(0);
@@ -233,43 +230,50 @@ public class Repository implements Serializable {
         Boolean hasConflict = false;
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
-            if (!fileCompare(givenMap.get(file), (splitMap.get(file)))
-                    && fileCompare(repo.filesMap.get(file), splitMap.get(file))) {
+            if (!fileCompare(givenMap.get(fileName), (splitMap.get(fileName)))
+                    && fileCompare(repo.filesMap.get(fileName), splitMap.get(fileName))) {
                 //Modified or removed in givenBranch, not in currBranch.
-                if (givenMap.containsKey(file)) {
-                    writeContents(file, givenMap.get(file));
+                if (givenMap.containsKey(fileName)) {
+                    writeContents(file, givenMap.get(fileName));
                     repo.mergeStagedFiles.add(fileName);
                 } else {
                     file.delete();
                 }
                 continue;
-            } else if (fileCompare(givenMap.get(file), splitMap.get(file))
-                    && !fileCompare(repo.filesMap.get(file), splitMap.get(file))) {
+            } else if (fileCompare(givenMap.get(fileName), splitMap.get(fileName))
+                    && !fileCompare(repo.filesMap.get(fileName), splitMap.get(fileName))) {
                 //Modified in currBranch, not in givenBranch.
-//                if (!repo.filesMap.containsKey(file)) {     //NOT SURE!
-//                    file.delete();
-//                }
+                if (!repo.filesMap.containsKey(fileName)) {     //NOT SURE!
+                    file.delete();
+                }
                 continue;
-            } else if (!fileCompare(givenMap.get(file), splitMap.get(file))
-                    && !fileCompare(repo.filesMap.get(file), splitMap.get(file))) {
+            } else if (!fileCompare(givenMap.get(fileName), splitMap.get(fileName))
+                    && !fileCompare(repo.filesMap.get(fileName), splitMap.get(fileName))) {
                 //Modified in both branch.
                 String a = "<<<<<<< HEAD\n";
                 String b = "=======\n";
                 String c = ">>>>>>>";
                 String givenContents = "";
                 String currContents = "";
-                if (givenMap.containsKey(file)) {
-                    givenContents = readContentsAsString(givenMap.get(file));
-                } else if (!repo.filesMap.containsKey(file)) {
+                if (givenMap.containsKey(fileName)) {
+                    givenContents = readContentsAsString(givenMap.get(fileName));
+                } else if (!repo.filesMap.containsKey(fileName)) {
                     //Deleted in both branch, but somehow created.
                 }
-                if (repo.filesMap.containsKey(file)) {
+                if (repo.filesMap.containsKey(fileName)) {
                     currContents = readContentsAsString(file);
                 }
                 String res = a.concat(givenContents).concat(b).concat(c);
                 writeContents(file, res);
                 hasConflict = true;
                 continue;
+            }
+        }
+        for (String addFileName : givenMap.keySet()) {
+            if (!existFiles.contains(addFileName)) {
+                if(splitMap.containsKey(addFileName) && !currMap.containsKey(addFileName)) {
+                    writeContents(join(CWD, addFileName), readContents(givenMap.get(addFileName)));
+                }
             }
         }
         if (hasConflict) {
@@ -282,7 +286,7 @@ public class Repository implements Serializable {
     public static void checkout(String fileName) {
         Repository repo = loadRepo();
         File currFile = join(CWD, fileName);
-        File checkoutFile = repo.filesMap.get(currFile);
+        File checkoutFile = repo.filesMap.get(fileName);
         if (checkoutFile == null) {
             exitWithError("File does not exist in that commit.");
         } else {
@@ -300,14 +304,14 @@ public class Repository implements Serializable {
     // Checkout a file to specific version.
     public static void checkout(String hash, String fileName) {
         Repository repo = loadRepo();
-        TreeMap<File, File> filesMap = BranchLogs.findBranchLogs(hash);
+        TreeMap<String, File> filesMap = BranchLogs.findBranchLogs(hash);
         File currFile = join(CWD, fileName);
-        File checkoutFile = filesMap.get(currFile);
+        File checkoutFile = filesMap.get(fileName);
         if (checkoutFile == null) {
             exitWithError("File does not exist in that commit.");
         } else {
             writeContents(currFile, readContents(checkoutFile));
-            repo.filesMap.put(currFile, checkoutFile);
+            repo.filesMap.put(fileName, checkoutFile);
             if (repo.stagedFiles.contains(fileName)) {
                 repo.stagedFiles.remove(fileName);
             }
@@ -328,17 +332,17 @@ public class Repository implements Serializable {
         if (branchHash == null) {
             exitWithError("No such branch exists.");
         }
-        TreeMap<File, File> branchFilesMap = BranchLogs.findBranchLogs(branchHash);
+        TreeMap<String, File> branchFilesMap = BranchLogs.findBranchLogs(branchHash);
         Repository.checkoutHelper(branch, branchFilesMap);
     }
 
-    public static void resetHelper(String branch, TreeMap<File, File> branchFilesMap) {
+    public static void resetHelper(String branch, TreeMap<String, File> branchFilesMap) {
         Repository repo = loadRepo();
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
-            if ((!repo.filesMap.containsKey(file)
-                    && branchFilesMap.containsKey(file))) {
+            if ((!repo.filesMap.containsKey(fileName)
+                    && branchFilesMap.containsKey(fileName))) {
                 exitWithError("There is an untracked file in the way;"
                         + " delete it, or add and commit it first.");
             }
@@ -350,14 +354,13 @@ public class Repository implements Serializable {
         repo.saveRepo();
     }
 
-    public static void checkoutHelper(String branch, TreeMap<File, File> branchFilesMap) {
+    public static void checkoutHelper(String branch, TreeMap<String, File> branchFilesMap) {
         Repository repo = loadRepo();
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
-            File file = join(CWD, fileName);
             if (repo.stagedFiles.contains(fileName)
-                    || (!repo.filesMap.containsKey(file)
-                    && branchFilesMap.containsKey(file))) {
+                    || (!repo.filesMap.containsKey(fileName)
+                    && branchFilesMap.containsKey(fileName))) {
                 exitWithError("There is an untracked file in the way;"
                         + " delete it, or add and commit it first.");
             }
@@ -369,17 +372,17 @@ public class Repository implements Serializable {
         repo.saveRepo();
     }
 
-    private static void checkoutMap(TreeMap<File, File> theMap) {
+    private static void checkoutMap(TreeMap<String, File> theMap) {
         Repository repo = loadRepo();
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
-            if (!theMap.containsKey(file) && repo.filesMap.containsKey(file)) {
+            if (!theMap.containsKey(fileName) && repo.filesMap.containsKey(fileName)) {
                 file.delete();
             }
         }
-        for (File file : theMap.keySet()) {
-            writeContents(file, readContents(theMap.get(file)));
+        for (String writeName : theMap.keySet()) {
+            writeContents(join(CWD, writeName), readContents(theMap.get(writeName)));
         }
     }
 
