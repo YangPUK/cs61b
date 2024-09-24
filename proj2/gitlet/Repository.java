@@ -93,8 +93,9 @@ public class Repository implements Serializable {
                 return true;
             } else if (file1 == null || file2 == null) {
                 return false;
-            }
-            else if (file1.length() != file2.length()) {
+            } else if (file1.toString() == file2.toString()) {
+                return true;
+            } else if (file1.length() != file2.length()) {
                 return false;
             }
             return Files.mismatch(file1.toPath(), file2.toPath()) == -1;
