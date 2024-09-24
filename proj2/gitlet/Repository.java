@@ -89,7 +89,12 @@ public class Repository implements Serializable {
 
     private static boolean fileCompare(File file1, File file2) {
         try {
-            if (file1.length() != file2.length()) {
+            if (file1 == file2) {
+                return true;
+            } else if (file1 == null || file2 == null) {
+                return false;
+            }
+            else if (file1.length() != file2.length()) {
                 return false;
             }
             return Files.mismatch(file1.toPath(), file2.toPath()) == -1;
@@ -221,15 +226,14 @@ public class Repository implements Serializable {
             repo.clear();
             repo.filesMap = givenMap;
             repo.saveRepo();
-            Commit.mergeCommit("Merged " + branch + " into "
-                    + repo.headBranch + ".");
+            Commit.mergeCommit(branch);
             return;
         }
         Boolean hasConflict = false;
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);
-            if (givenMap.get(file) != (splitMap.get(file))
-                    && repo.filesMap.get(file) == splitMap.get(file)) {
+            if (!fileCompare(givenMap.get(file), (splitMap.get(file)))
+                    && fileCompare(repo.filesMap.get(file), splitMap.get(file))) {
                 //Modified or removed in givenBranch, not in currBranch.
                 if (givenMap.containsKey(file)) {
                     writeContents(file, givenMap.get(file));
@@ -238,15 +242,15 @@ public class Repository implements Serializable {
                     file.delete();
                 }
                 continue;
-            } else if (givenMap.get(file) == (splitMap.get(file))
-                    && repo.filesMap.get(file) != splitMap.get(file)) {
+            } else if (fileCompare(givenMap.get(file), splitMap.get(file))
+                    && !fileCompare(repo.filesMap.get(file), splitMap.get(file))) {
                 //Modified in currBranch, not in givenBranch.
 //                if (!repo.filesMap.containsKey(file)) {     //NOT SURE!
 //                    file.delete();
 //                }
                 continue;
-            } else if (givenMap.get(file) != (splitMap.get(file))
-                    && repo.filesMap.get(file) != splitMap.get(file)) {
+            } else if (!fileCompare(givenMap.get(file), splitMap.get(file))
+                    && !fileCompare(repo.filesMap.get(file), splitMap.get(file))) {
                 //Modified in both branch.
                 String a = "<<<<<<< HEAD\n";
                 String b = "=======\n";
@@ -257,7 +261,6 @@ public class Repository implements Serializable {
                     givenContents = readContentsAsString(givenMap.get(file));
                 } else if (!repo.filesMap.containsKey(file)) {
                     //Deleted in both branch, but somehow created.
-                    continue;
                 }
                 if (repo.filesMap.containsKey(file)) {
                     currContents = readContentsAsString(file);
@@ -271,7 +274,7 @@ public class Repository implements Serializable {
         if (hasConflict) {
             System.out.println("Encountered a merge conflict.");
         }
-        Commit.mergeCommit("Merged " + branch + " into " + repo.headBranch + ".");
+        Commit.mergeCommit(branch);
     }
 
     // Checkout a file to previous version.
