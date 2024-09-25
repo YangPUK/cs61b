@@ -181,11 +181,31 @@ public class BranchLogs implements Serializable {
         exitWithError("No commit with that id exists.");
     }
 
+    public static TreeMap<String, File> findSplitMap(String branch) {
+        Repository repo = Repository.loadRepo();
+        BranchLogs given = readBranch(branch);
+        BranchLogs curr = readBranch(repo.headBranch);
+        while (given.isEmpty()) {
+            given = readBranch(given.parentBranch);
+        }
+        while (curr.isEmpty()) {
+            curr = readBranch(curr.parentBranch);
+        }
+        while (!given.parentBranch.equals(curr.parentBranch) && !given.parentBranch.equals("master")) {
+            given = readBranch(given.parentBranch);
+        }
+        return findBranchLogs(given.parentHash);
+    }
+
 
 
     private void setHead(String hash) {
         headHash = hash;
         saveBranch();
+    }
+
+    public boolean isEmpty() {
+        return branchList.isEmpty();
     }
 
     public void saveBranch() {

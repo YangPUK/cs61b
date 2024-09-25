@@ -78,6 +78,26 @@ public class TestMyCode {
         merge("other");
     }
 
+    @Test
+    public void testMerge2() {
+        setup1();
+        branch("B1");
+        branch("B2");
+        checkout("B1");
+        add("h","wug");
+        commit("Add h");
+        checkout("B2");
+        add("f", "wug");
+        commit("Add f");
+        branch("C1");
+        add("g", "notwug");
+        rm("f");
+        commit("Add g, remove f");
+        checkout("B1");
+        merge("C1");
+        merge("B2");
+    }
+
     public void setup1() {
         String[] wugs ={"This is a wug." , "This is not a wug.", "And yet another wug.", "Another wug."};
         wug = new TreeMap<>();
@@ -86,9 +106,9 @@ public class TestMyCode {
         wug.put("wug3", wugs[2]);
         wug.put("wug2", wugs[3]);
         Main.main(new String[] {"init"});
-        add("f", "wug");
-        add("g", "notwug");
-        commit("Two files f & g");
+//        add("f", "wug");
+//        add("g", "notwug");
+//        commit("Two files f & g");
     }
 
 }

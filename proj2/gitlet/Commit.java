@@ -57,7 +57,8 @@ public class Commit {
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         String timeStamp = sdf.format(new Date());
         String hash = sha1(message, timeStamp, repo.filesMap.toString());
-        repo.setPointer(repo.headBranch, hash);
+        repo.branchesPMap.put(repo.headBranch, hash);
+        repo.saveRepo();
         String[] parents = {repo.getBranchHash(repo.headBranch), repo.getBranchHash(branch)};
         BranchLogs currBranch = BranchLogs.readBranch(repo.headBranch);
         currBranch.mergeAdd(hash, message, timeStamp, repo.filesMap, parents);

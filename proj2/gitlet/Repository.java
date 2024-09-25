@@ -64,6 +64,11 @@ public class Repository implements Serializable {
 
     public void record(String hash, String message, String timeStamp) {
         BranchLogs headBranchLog = readObject(join(LOGS_DIR, this.headBranch), BranchLogs.class);
+        addRemove(hash);
+        headBranchLog.add(hash, message, timeStamp, filesMap);
+    }
+
+    public void addRemove(String hash) {
         for (String file : stagedFiles) {
             File addedFile = join(CWD, file);
             String fileHash = sha1(readContents(addedFile));
@@ -74,10 +79,9 @@ public class Repository implements Serializable {
         for (String file : removedFiles) {
             filesMap.remove(file);
         }
-        headBranchLog.add(hash, message, timeStamp, filesMap);
         branchesPMap.put(this.headBranch, hash);
         clear();
-        this.saveRepo();
+        saveRepo();
     }
 
     public void clear() {
@@ -197,8 +201,7 @@ public class Repository implements Serializable {
             exitWithError("Cannot merge a branch with itself.");
         }
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
-        BranchLogs currBranchLogs = BranchLogs.readBranch(repo.headBranch);
-        if (currBranchLogs.parentBranch.equals(repo.branchesPMap.get(branch))) {
+        if (givenBranchLogs.parentBranch.equals(repo.branchesPMap.get(branch))) {
             System.out.println("Given branch is an ancestor of"
                     + " the current branch.");
             System.exit(0);
@@ -223,12 +226,12 @@ public class Repository implements Serializable {
         Repository repo = loadRepo();
         mergeError(branch);
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
-        String splitHash = givenBranchLogs.parentHash;
-        TreeMap<String, File> splitMap = givenBranchLogs.findBranchLogs(splitHash);
+        TreeMap<String, File> splitMap = BranchLogs.findSplitMap(branch);
         TreeMap<String, File> givenMap = givenBranchLogs.headMap;
         TreeMap<String, File> currMap = repo.filesMap;
         List<String> existFiles = plainFilenamesIn(CWD);
-        if (givenBranchLogs.parentHash.equals(repo.workingHash())) {
+        if (givenBranchLogs.parentHash.equals(repo.workingHash())
+                || givenBranchLogs.contains(repo.headHash())) {
             System.out.println("Current branch fast-forwarded.");
             checkoutMap(givenMap);
             repo.clear();
@@ -244,7 +247,7 @@ public class Repository implements Serializable {
                     && fileCompare(repo.filesMap.get(fileName), splitMap.get(fileName))) {
                 //Modified or removed in givenBranch, not in currBranch.
                 if (givenMap.containsKey(fileName)) {
-                    writeContents(file, givenMap.get(fileName));
+                    writeContents(file, readContents(givenMap.get(fileName)));
                     repo.mergeStagedFiles.add(fileName);
                 } else {
                     file.delete();
@@ -254,15 +257,15 @@ public class Repository implements Serializable {
                     && !fileCompare(repo.filesMap.get(fileName), splitMap.get(fileName))) {
                 //Modified in currBranch, not in givenBranch.
                 if (!repo.filesMap.containsKey(fileName)) {     //NOT SURE!
+                    givenMap.remove(fileName);
                     file.delete();
+                } else {
+                    givenMap.put(fileName, currMap.get(fileName));
                 }
                 continue;
             } else if (!fileCompare(givenMap.get(fileName), splitMap.get(fileName))
                     && !fileCompare(repo.filesMap.get(fileName), splitMap.get(fileName))) {
                 //Modified in both branch.
-                String a = "<<<<<<< HEAD\n";
-                String b = "=======\n";
-                String c = ">>>>>>>\n";
                 String givenContents = "";
                 String currContents = "";
                 if (givenMap.containsKey(fileName)) {
@@ -274,8 +277,12 @@ public class Repository implements Serializable {
                 if (repo.filesMap.containsKey(fileName)) {
                     currContents = readContentsAsString(file);
                 }
-//                String res = a.concat(currContents).concat(b).concat(givenContents).concat(c);
-                String res = a + currContents + b + givenContents + c;
+                String res = "<<<<<<< HEAD\n" + currContents
+                        + "=======\n" + givenContents + ">>>>>>>\n";
+                String fileHash = sha1(res);
+                File storeFile = join(BLOBS_DIR, fileHash);
+                givenMap.put(fileName, storeFile);
+                writeContents(join(BLOBS_DIR, fileHash), res);
                 writeContents(file, res);
                 hasConflict = true;
                 continue;
@@ -283,15 +290,20 @@ public class Repository implements Serializable {
         }
         for (String addFileName : givenMap.keySet()) {
             if (!existFiles.contains(addFileName)) {
-                if(splitMap.containsKey(addFileName) && !currMap.containsKey(addFileName)) {
+                if(fileCompare(splitMap.get(addFileName),givenMap.get(addFileName))
+                        && !currMap.containsKey(addFileName)) {
                     continue;
                 }
-                writeContents(join(CWD, addFileName), readContents(givenMap.get(addFileName)));
+                File addFile = join(CWD, addFileName);
+                writeContents(addFile, readContents(givenMap.get(addFileName)));
             }
         }
         if (hasConflict) {
             System.out.println("Encountered a merge conflict.");
         }
+        repo.filesMap = givenMap;
+        repo.clear();
+        repo.saveRepo();
         Commit.mergeCommit(branch);
     }
 
@@ -416,7 +428,11 @@ public class Repository implements Serializable {
     public String getBranchHash(String branch) {
         return branchesPMap.get(branch);
     }
-    //hihi
+
+    public String headHash() {
+        return branchesPMap.get(headBranch);
+    }
+
 
 }
 
