@@ -156,7 +156,8 @@ public class Repository implements Serializable {
         }
         File oddFile = repo.filesMap.get(fileName);
         if (!oddFile.equals(BIN)) {
-            repo.filesMap.put(fileName, BIN);
+            //Tracked not deleted.
+            repo.removedFiles.add(fileName);
             if (removedFile.exists()) {
                 restrictedDelete(removedFile);
                 repo.saveRepo();
@@ -234,14 +235,14 @@ public class Repository implements Serializable {
             System.exit(0);
         }
         String splitHash = givenBranchLogs.parentHash;
-        TreeMap<String, File> splitMap = givenBranchLogs.findBranchLogs(splitHash);
+//        TreeMap<String, File> splitMap = givenBranchLogs.findBranchLogs(splitHash);
         TreeMap<String, File> givenMap = givenBranchLogs.headMap;
         TreeMap<String, File> currMap = repo.filesMap;
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
-            File file = join(CWD, fileName);
-            if (!currMap.containsKey(fileName) && (givenMap.containsKey(fileName)
-                    || (!givenMap.containsKey(fileName) && splitMap.containsKey(fileName)))) {
+//            if (!currMap.containsKey(fileName) && (givenMap.containsKey(fileName)
+//                    || (!givenMap.containsKey(fileName) && splitMap.containsKey(fileName)))) {
+            if (!currMap.containsKey(fileName) && !givenMap.containsKey(fileName)) {
                 System.out.println("There is an untracked file in the way; delete it,"
                         + " or add and commit it first.");
                 System.exit(0);
@@ -393,7 +394,6 @@ public class Repository implements Serializable {
         Repository repo = loadRepo();
         List<String> existFiles = plainFilenamesIn(CWD);
         for (String fileName : existFiles) {
-            File file = join(CWD, fileName);
             if ((!repo.filesMap.containsKey(fileName)
                     && branchFilesMap.containsKey(fileName))) {
                 exitWithError("There is an untracked file in the way;"
