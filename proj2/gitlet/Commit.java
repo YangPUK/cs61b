@@ -38,7 +38,7 @@ public class Commit {
     public static void makeCommit(String message) {
         Repository repo = Repository.loadRepo();
         if (repo.stagedFiles.size() == 0
-                && repo.removedFiles.size() == 0) {
+                && repo.rmFiles.size() == 0) {
             exitWithError("No changes added to the commit");
         } else if (message.isBlank()) {
             exitWithError("Please enter a commit message.");
@@ -62,8 +62,8 @@ public class Commit {
         String[] parents = {repo.getBranchHash(repo.headBranch), repo.getBranchHash(branch)};
         BranchLogs currBranch = BranchLogs.readBranch(repo.headBranch);
         BranchLogs givenBranch = BranchLogs.readBranch(branch);
-        currBranch.mergeAdd(hash, message, timeStamp, repo.filesMap, parents);
-        givenBranch.setParent(hash, repo.headBranch);
+        currBranch.mergeAdd(hash, message, timeStamp, repo.filesMap, parents, givenBranch.rmFiles);
+        currBranch.setParent(hash, repo.headBranch);
     }
 
     public static void showLogs() {
