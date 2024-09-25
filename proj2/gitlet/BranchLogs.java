@@ -257,5 +257,4 @@ public class BranchLogs implements Serializable {
             branchLogs.saveBranch();
         }
     }
-
 }
