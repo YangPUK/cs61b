@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import static gitlet.Utils.*;
 
@@ -16,6 +17,7 @@ public class BranchLogs implements Serializable {
     public String parentHash;
     public String headHash;
     public TreeMap<String, File> headMap;
+    public TreeSet<String> rmFiles;
 
     public static class Node implements Serializable {
         private String hash;
@@ -49,12 +51,24 @@ public class BranchLogs implements Serializable {
         this.parentHash = repo.workingHash();
         this.headHash = parentHash;
         this.headMap = repo.filesMap;
+        this.rmFiles = BranchLogs.readBranch(repo.headBranch).rmFiles;
         this.branch = branch;
         branchList = new LinkedList<>();
         this.room = join(room, branch);
     }
 
-    public void add(String hash, String message, String timeStamp, TreeMap<String, File> filesMap) {
+    public void add(String hash, String message, String timeStamp, TreeMap<String, File> filesMap
+            , TreeSet<String> rmFiles) {
+        for (String file : filesMap.keySet()) {
+            if (this.rmFiles.contains(file)) {
+                this.rmFiles.remove(file);
+            }
+        }
+        for (String file : rmFiles) {
+            if (!this.rmFiles.contains(file)) {
+                this.rmFiles.add(file);
+            }
+        }
         Node node = new Node(hash, message, timeStamp, filesMap);
         branchList.addFirst(node);
         headHash = hash;
@@ -63,7 +77,17 @@ public class BranchLogs implements Serializable {
     }
 
     public void mergeAdd(String hash, String message, String timeStamp,
-                         TreeMap<String, File> filesMap, String[] parents) {
+                         TreeMap<String, File> filesMap, String[] parents, TreeSet<String> rmFiles) {
+        for (String file : filesMap.keySet()) {
+            if (this.rmFiles.contains(file)) {
+                this.rmFiles.remove(file);
+            }
+        }
+        for (String file : rmFiles) {
+            if (!this.rmFiles.contains(file)) {
+                this.rmFiles.add(file);
+            }
+        }
         Node node = new Node(hash, message, timeStamp, filesMap);
         node.addParents(parents);
         branchList.addFirst(node);
@@ -256,6 +280,11 @@ public class BranchLogs implements Serializable {
             branchLogs.parentHash = hash;
             branchLogs.saveBranch();
         }
+    }
+
+    public static TreeSet<String> rmFiles(String branch) {
+        BranchLogs branchLogs = BranchLogs.readBranch(branch);
+        return branchLogs.rmFiles;
     }
 
 }
