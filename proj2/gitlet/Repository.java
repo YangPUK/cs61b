@@ -27,6 +27,7 @@ public class Repository implements Serializable {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File LOGS_DIR = join(GITLET_DIR, "logs");
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
+    public static final File BIN = join(BLOBS_DIR, "bin");
     public TreeMap<String, String> branchesPMap;   //Pointer Map
     public TreeMap<String, File> filesMap;
     public TreeSet<String> stagedFiles = new TreeSet<>();
@@ -40,6 +41,7 @@ public class Repository implements Serializable {
             GITLET_DIR.mkdir();
             LOGS_DIR.mkdir();
             BLOBS_DIR.mkdir();
+            writeContents(BIN, "It's a dust bin for deleted files");
             Commit.setup();
         } else {
             exitWithError("A Gitlet version-control system already exists"
@@ -77,7 +79,7 @@ public class Repository implements Serializable {
             writeContents(storeFile, readContents(addedFile));
         }
         for (String file : removedFiles) {
-            filesMap.remove(file);
+            filesMap.put(file, BIN);
         }
         branchesPMap.put(this.headBranch, hash);
         clear();
@@ -112,20 +114,35 @@ public class Repository implements Serializable {
             exitWithError("File does not exist.");
         } else if (repo.stagedFiles.contains(fileName)) {
             return;
-        } else if (!repo.filesMap.containsKey(fileName)) {
-            // Remove and add the same file.
-            repo.stagedFiles.add(fileName);
-            repo.saveRepo();
-            return;
-        }   //Tracked
-        File oddFile = repo.filesMap.get(fileName);
-        if (!fileCompare(oddFile, addedFile)) {
-            repo.stagedFiles.add(fileName);
-            repo.saveRepo();
-        } else if (repo.removedFiles.contains(fileName)) {
-            repo.removedFiles.remove(fileName);
-            repo.saveRepo();
         }
+
+//        else if (!repo.filesMap.containsKey(fileName)) {
+//            // Remove and add the same file.
+//            repo.stagedFiles.add(fileName);
+//            repo.saveRepo();
+//            return;
+//        }   //Tracked
+//        File oddFile = repo.filesMap.get(fileName);
+//        if (!fileCompare(oddFile, addedFile)) {
+//            repo.stagedFiles.add(fileName);
+//            repo.saveRepo();
+//        } else if (repo.removedFiles.contains(fileName)) {
+//            repo.removedFiles.remove(fileName);
+//            repo.saveRepo();
+//        }
+        File oddFile = repo.filesMap.get(fileName);
+        if (oddFile == null) {
+            //Not tracked
+            repo.stagedFiles.add(fileName);
+        } else if (oddFile.equals(BIN)) {
+            //Tracked & removed
+            if (repo.removedFiles.contains(fileName)) {
+                repo.removedFiles.remove(fileName);
+            } else {
+                repo.stagedFiles.add(fileName);
+            }
+        }
+        repo.saveRepo();
     }
 
     public static void removeFile(String fileName) {
@@ -135,15 +152,25 @@ public class Repository implements Serializable {
         if (repo.stagedFiles.contains(fileName)) {
             repo.stagedFiles.remove(fileName);
             repo.saveRepo();
-        } else if (repo.filesMap.containsKey(fileName)) {   // Not Staged, but tracked.
-            repo.removedFiles.add(fileName);
-            // Delete the file.
+            return;
+        }
+        File oddFile = repo.filesMap.get(fileName);
+        if (!oddFile.equals(BIN)) {
+            repo.filesMap.put(fileName, BIN);
             if (removedFile.exists()) {
                 restrictedDelete(removedFile);
+                repo.saveRepo();
+
+//        else if (repo.filesMap.containsKey(fileName)) {   // Not Staged, but tracked.
+//            repo.removedFiles.add(fileName);
+//            // Delete the file.
+//            if (removedFile.exists()) {
+//                restrictedDelete(removedFile);
+//            }
+//            repo.saveRepo();
+            } else {
+                exitWithError("No reason to remove the file.");
             }
-            repo.saveRepo();
-        } else {
-            exitWithError("No reason to remove the file.");
         }
     }
 

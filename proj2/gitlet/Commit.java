@@ -63,7 +63,7 @@ public class Commit {
         BranchLogs currBranch = BranchLogs.readBranch(repo.headBranch);
         BranchLogs givenBranch = BranchLogs.readBranch(branch);
         currBranch.mergeAdd(hash, message, timeStamp, repo.filesMap, parents);
-        givenBranch.setParent(hash, repo.headBranch);
+//        givenBranch.setParent(hash, repo.headBranch);
     }
 
     public static void showLogs() {
