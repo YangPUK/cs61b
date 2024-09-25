@@ -17,7 +17,7 @@ public class BranchLogs implements Serializable {
     public String parentHash;
     public String headHash;
     public TreeMap<String, File> headMap;
-    public TreeSet<String> rmFiles;
+    public TreeSet<String> rmFiles = new TreeSet<>();
 
     public static class Node implements Serializable {
         private String hash;

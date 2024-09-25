@@ -58,12 +58,13 @@ public class Commit {
         String timeStamp = sdf.format(new Date());
         String hash = sha1(message, timeStamp, repo.filesMap.toString());
         repo.branchesPMap.put(repo.headBranch, hash);
-        repo.saveRepo();
         String[] parents = {repo.getBranchHash(repo.headBranch), repo.getBranchHash(branch)};
         BranchLogs currBranch = BranchLogs.readBranch(repo.headBranch);
         BranchLogs givenBranch = BranchLogs.readBranch(branch);
         currBranch.mergeAdd(hash, message, timeStamp, repo.filesMap, parents, repo.rmFiles);
         givenBranch.setParent(hash, repo.headBranch);
+        repo.clear();
+        repo.saveRepo();
     }
 
     public static void showLogs() {
