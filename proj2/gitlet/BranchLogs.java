@@ -183,19 +183,33 @@ public class BranchLogs implements Serializable {
 
     public static TreeMap<String, File> findSplitMap(String branch) {
         Repository repo = Repository.loadRepo();
-        BranchLogs given = readBranch(branch);
-        BranchLogs curr = readBranch(repo.headBranch);
-        while (given.isEmpty()) {
-            given = readBranch(given.parentBranch);
+        BranchLogs given;
+        String currName = repo.headBranch;
+        while (!currName.equals("I am an orphan")) {
+            BranchLogs curr = readBranch(currName);
+            given = readBranch(branch);
+            while (!given.parentBranch.equals("I am an orphan")) {
+                if (given.parentBranch.equals(currName)) {
+                    return curr.findBranchLogs(given.parentHash);
+                }
+                given = readBranch(given.parentBranch);
+            }
+            currName = curr.parentBranch;
         }
-        while (curr.isEmpty()) {
-            curr = readBranch(curr.parentBranch);
-        }
-        while (!given.parentBranch.equals(curr.parentBranch) && !given.parentBranch.equals("master")) {
-            given = readBranch(given.parentBranch);
-        }
-        return findBranchLogs(given.parentHash);
+        exitWithError("Could not find split map for branch " + branch);
+        return null;
     }
+
+//        while (given.isEmpty()) {
+//            given = readBranch(given.parentBranch);
+//        }
+//        while (curr.isEmpty()) {
+//            curr = readBranch(curr.parentBranch);
+//        }
+//        while (!given.parentBranch.equals(curr.parentBranch) && !given.parentBranch.equals("master")) {
+//            given = readBranch(given.parentBranch);
+//        }
+//        return findBranchLogs(given.parentHash);
 
 
 
@@ -222,6 +236,23 @@ public class BranchLogs implements Serializable {
 
     public static BranchLogs readMaster() {
         return readObject(join(Repository.LOGS_DIR, "master"), BranchLogs.class);
+    }
+
+    public void setParent(String hash, String parent) {
+        parentHash = hash;
+        parentBranch = parent;
+        saveBranch();
+    }
+
+    public static void mergeSplit(String hash, String givenbranch) {
+        List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
+        for (String branch: branches) {
+            BranchLogs branchLogs = BranchLogs.readBranch(branch);
+            if (branchLogs.contains(hash));
+            branchLogs.parentBranch = givenbranch;
+            branchLogs.parentHash = hash;
+            branchLogs.saveBranch();
+        }
     }
 
 }

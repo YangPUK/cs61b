@@ -304,6 +304,7 @@ public class Repository implements Serializable {
         repo.filesMap = givenMap;
         repo.clear();
         repo.saveRepo();
+//        BranchLogs.mergeSplit(givenBranchLogs.headHash, branch);
         Commit.mergeCommit(branch);
     }
 
