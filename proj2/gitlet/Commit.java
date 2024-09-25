@@ -61,7 +61,9 @@ public class Commit {
         repo.saveRepo();
         String[] parents = {repo.getBranchHash(repo.headBranch), repo.getBranchHash(branch)};
         BranchLogs currBranch = BranchLogs.readBranch(repo.headBranch);
+        BranchLogs givenBranch = BranchLogs.readBranch(branch);
         currBranch.mergeAdd(hash, message, timeStamp, repo.filesMap, parents);
+        givenBranch.setParent(hash, repo.headBranch);
     }
 
     public static void showLogs() {

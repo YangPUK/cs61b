@@ -239,6 +239,9 @@ public class BranchLogs implements Serializable {
     }
 
     public void setParent(String hash, String parent) {
+        if (isEmpty()) {
+            BranchLogs.readBranch(parentBranch).setParent(hash, parent);
+        }
         parentHash = hash;
         parentBranch = parent;
         saveBranch();
