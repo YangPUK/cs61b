@@ -227,29 +227,7 @@ public class BranchLogs implements Serializable {
 //    }
 
     public static TreeMap<String, File> findSplitMap(String branch) {
-        Repository repo = Repository.loadRepo();
-        BranchLogs given;
-        String currName = repo.headBranch;
-        String givenName = branch;
-        while (!currName.equals("I am an orphan")) {
-            BranchLogs curr = readBranch(currName);
-            for (Node currNode : curr.branchList) {
-                while (!givenName.equals(currName) && !givenName.equals("master")) {
-                    given = BranchLogs.readBranch(givenName);
-                    if (given.parentHash.equals(currNode.hash)) {
-                        return currNode.filesMap;
-                    }
-                    if(given.splitPoint.containsKey(currNode.hash)) {
-                        return given.splitPoint.get(currNode.hash).filesMap;
-                    }
-                    givenName = given.parentBranch;
-                }
-                givenName = branch;
-            }
-            currName = curr.parentBranch;
-        }
-        exitWithError("Could not find split map for branch " + branch);
-        return null;
+        return findSplitNode(branch).filesMap;
     }
 
     public static Node findSplitNode(String branch) {
@@ -277,7 +255,7 @@ public class BranchLogs implements Serializable {
         }
         given = readBranch(branch);
         curr =  readCurrLog();
-        if (given.splitPoint.containsKey(curr.headHash)) {
+        if (given.splitPoint.containsKey(curr.parentHash)) {
             return given.splitPoint.get(curr.headHash);
         }
         exitWithError("Could not find split node for branch " + branch);
