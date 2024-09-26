@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
@@ -16,16 +17,31 @@ public class BranchLogs implements Serializable {
     public String parentHash;
     public String headHash;
     public TreeMap<String, File> headMap;
+    public HashMap<String, Node> splitPoint = new HashMap<>();
 
-    public static class Node implements Serializable {
+    public static class Node implements Comparable<Node>, Serializable {
         private String hash;
         private String message;
         private String timeStamp;
         private String[] parents;
         public TreeMap<String, File> filesMap;
 
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null || !(o instanceof Node)) {
+                return false;
+            }
+            if (hash == ((Node) o).hash) {
+                return true;
+            }
+            return false;
+        }
 
-        public Node(String hash, String message, String timeStamp, TreeMap<String, File> filesMap) {
+
+        public Node (String hash, String message, String timeStamp, TreeMap<String, File> filesMap) {
             this.hash = hash;
             this.message = message;
             this.timeStamp = timeStamp;
@@ -33,6 +49,11 @@ public class BranchLogs implements Serializable {
         }
         public void addParents(String[] parents) {
             this.parents = parents;
+        }
+
+        @Override
+        public int compareTo(Node o) {
+            return hash.compareTo(o.hash);
         }
     }
 
@@ -63,7 +84,7 @@ public class BranchLogs implements Serializable {
     }
 
     public void mergeAdd(String hash, String message, String timeStamp,
-                         TreeMap<String, File> filesMap, String[] parents) {
+                         TreeMap<String, File> filesMap, String[] parents, String mBranch) {
         Node node = new Node(hash, message, timeStamp, filesMap);
         node.addParents(parents);
         branchList.addFirst(node);
@@ -181,37 +202,50 @@ public class BranchLogs implements Serializable {
         exitWithError("No commit with that id exists.");
     }
 
+//    public static TreeMap<String, File> findSplitMap(String branch) {
+//        Repository repo = Repository.loadRepo();
+//        BranchLogs given;
+//        String currName = repo.headBranch;
+//        while (!currName.equals("I am an orphan")) {
+//            BranchLogs curr = readBranch(currName);
+//            given = readBranch(branch);
+//            while (!given.parentBranch.equals("I am an orphan")) {
+//                if (given.parentBranch.equals(currName)) {
+//                    return curr.findBranchLogs(given.parentHash);
+//                }
+//                given = readBranch(given.parentBranch);
+//            }
+//            currName = curr.parentBranch;
+//        }
+//        exitWithError("Could not find split map for branch " + branch);
+//        return null;
+//    }
+
     public static TreeMap<String, File> findSplitMap(String branch) {
         Repository repo = Repository.loadRepo();
         BranchLogs given;
         String currName = repo.headBranch;
+        String givenName = branch;
         while (!currName.equals("I am an orphan")) {
             BranchLogs curr = readBranch(currName);
-            given = readBranch(branch);
-            while (!given.parentBranch.equals("I am an orphan")) {
-                if (given.parentBranch.equals(currName)) {
-                    return curr.findBranchLogs(given.parentHash);
+            for (Node currNode : curr.branchList) {
+                while (!givenName.equals(currName) && !givenName.equals("master")) {
+                    given = BranchLogs.readBranch(givenName);
+                    if (given.parentHash.equals(currNode.hash)) {
+                        return currNode.filesMap;
+                    }
+                    if(given.splitPoint.containsKey(currNode.hash)) {
+                        return given.splitPoint.get(currNode.hash).filesMap;
+                    }
+                    givenName = given.parentBranch;
                 }
-                given = readBranch(given.parentBranch);
+                givenName = branch;
             }
             currName = curr.parentBranch;
         }
         exitWithError("Could not find split map for branch " + branch);
         return null;
     }
-
-//        while (given.isEmpty()) {
-//            given = readBranch(given.parentBranch);
-//        }
-//        while (curr.isEmpty()) {
-//            curr = readBranch(curr.parentBranch);
-//        }
-//        while (!given.parentBranch.equals(curr.parentBranch) && !given.parentBranch.equals("master")) {
-//            given = readBranch(given.parentBranch);
-//        }
-//        return findBranchLogs(given.parentHash);
-
-
 
     private void setHead(String hash) {
         headHash = hash;
@@ -242,6 +276,30 @@ public class BranchLogs implements Serializable {
         parentHash = hash;
         parentBranch = parent;
         saveBranch();
+    }
+
+    public static BranchLogs readCurrLog() {
+        return readBranch(Repository.loadRepo().headBranch);
+    }
+    public void setSplit(String parentHash, String hash) {
+        if (branchList.isEmpty()) {
+            parentHash = this.parentHash;
+            BranchLogs branchLogs = BranchLogs.readBranch(parentBranch);
+            branchLogs.setSplit(parentHash, hash);
+            return;
+        }
+        splitPoint.put(hash, getNode(parentHash));
+        saveBranch();
+    }
+
+    public Node getNode(String hash) {
+        for (Node node : branchList) {
+            if (node.hash.equals(hash)) {
+                return node;
+            }
+        }
+        exitWithError("No such node exists.");
+        return null;
     }
 
     public static void mergeSplit(String hash, String givenbranch) {
