@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.*;
 
 import static gitlet.Utils.*;
+import static gitlet.BranchLogs.Node;
 
 /** Represents a gitlet repository.
  *  does at a high level.
@@ -174,6 +175,7 @@ public class Repository implements Serializable {
             exitWithError("A branch with that name already exists.");
         }
         repo.setPointer(branch, repo.workingHash());
+        BranchLogs.readCurrLog().setSplit(repo.headHash(), repo.headHash());
         BranchLogs branchLogs = new BranchLogs(branch, repo);
         branchLogs.saveBranch();
         repo.saveRepo();
@@ -191,7 +193,7 @@ public class Repository implements Serializable {
         repo.saveRepo();
     }
 
-    private static void mergeError(String branch) {
+    private static boolean mergeError(String branch) {
         Repository repo = loadRepo();
         if (!repo.branchesPMap.containsKey(branch)) {
             exitWithError("A branch with that name does not exists.");
@@ -201,13 +203,9 @@ public class Repository implements Serializable {
             exitWithError("Cannot merge a branch with itself.");
         }
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
-        if (givenBranchLogs.parentBranch.equals(repo.branchesPMap.get(branch))) {
-            System.out.println("Given branch is an ancestor of"
-                    + " the current branch.");
-            System.exit(0);
-        }
-        String splitHash = givenBranchLogs.parentHash;
-        TreeMap<String, File> splitMap = givenBranchLogs.findBranchLogs(splitHash);
+        Node splitNode = BranchLogs.findSplitNode(branch);
+        TreeMap<String, File> splitMap = splitNode.filesMap;
+//                BranchLogs.findSplitMap(branch);
         TreeMap<String, File> givenMap = givenBranchLogs.headMap;
         TreeMap<String, File> currMap = repo.filesMap;
         List<String> existFiles = plainFilenamesIn(CWD);
@@ -220,26 +218,35 @@ public class Repository implements Serializable {
                 System.exit(0);
             }
         }
-    }
-
-    public static void mergeBranch(String branch) {
-        Repository repo = loadRepo();
-        mergeError(branch);
-        BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
-        TreeMap<String, File> splitMap = BranchLogs.findSplitMap(branch);
-        TreeMap<String, File> givenMap = givenBranchLogs.headMap;
-        TreeMap<String, File> currMap = repo.filesMap;
-        List<String> existFiles = plainFilenamesIn(CWD);
-        if (givenBranchLogs.parentHash.equals(repo.workingHash())
-                || givenBranchLogs.contains(repo.headHash())) {
+        if (splitNode.getHash().equals(repo.branchesPMap.get(branch))) {
+            System.out.println("Given branch is an ancestor of"
+                    + " the current branch.");
+            return true;
+        }
+        if (splitNode.getHash().equals(repo.branchesPMap.get(repo.headBranch))) {
             System.out.println("Current branch fast-forwarded.");
             checkoutMap(givenMap);
             repo.clear();
             repo.filesMap = givenMap;
             repo.saveRepo();
             Commit.mergeCommit(branch);
+            return true;
+        }
+        return false;
+    }
+
+    public static void mergeBranch(String branch) {
+        Repository repo = loadRepo();
+        if (mergeError(branch)) {
             return;
         }
+        BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
+        TreeMap<String, File> splitMap = BranchLogs.findSplitMap(branch);
+        TreeMap<String, File> givenMap = givenBranchLogs.headMap;
+        TreeMap<String, File> currMap = repo.filesMap;
+//        if (givenBranchLogs.parentBranch.equals(repo.headBranch)) {
+
+        List<String> existFiles = plainFilenamesIn(CWD);
         Boolean hasConflict = false;
         for (String fileName : existFiles) {
             File file = join(CWD, fileName);

@@ -47,8 +47,13 @@ public class BranchLogs implements Serializable {
             this.timeStamp = timeStamp;
             this.filesMap = filesMap;
         }
+
         public void addParents(String[] parents) {
             this.parents = parents;
+        }
+
+        public String getHash() {
+            return hash;
         }
 
         @Override
@@ -247,6 +252,38 @@ public class BranchLogs implements Serializable {
         return null;
     }
 
+    public static Node findSplitNode(String branch) {
+        Repository repo = Repository.loadRepo();
+        BranchLogs given;
+        BranchLogs curr;
+        String currName = repo.headBranch;
+        String givenName = branch;
+        while (!currName.equals("I am an orphan")) {
+            curr = readBranch(currName);
+            for (Node currNode : curr.branchList) {
+                while (!givenName.equals(currName) && !givenName.equals("master")) {
+                    given = BranchLogs.readBranch(givenName);
+                    if (given.parentHash.equals(currNode.hash)) {
+                        return currNode;
+                    }
+                    if(given.splitPoint.containsKey(currNode.hash)) {
+                        return given.splitPoint.get(currNode.hash);
+                    }
+                    givenName = given.parentBranch;
+                }
+                givenName = branch;
+            }
+            currName = curr.parentBranch;
+        }
+        given = readBranch(branch);
+        curr =  readCurrLog();
+        if (given.splitPoint.containsKey(curr.headHash)) {
+            return given.splitPoint.get(curr.headHash);
+        }
+        exitWithError("Could not find split node for branch " + branch);
+        return null;
+    }
+
     private void setHead(String hash) {
         headHash = hash;
         saveBranch();
@@ -282,6 +319,8 @@ public class BranchLogs implements Serializable {
         return readBranch(Repository.loadRepo().headBranch);
     }
     public void setSplit(String parentHash, String hash) {
+        //parentHash is self, hash is pointed.
+        //Key: pointingHash Value splitNode
         if (branchList.isEmpty()) {
             parentHash = this.parentHash;
             BranchLogs branchLogs = BranchLogs.readBranch(parentBranch);
@@ -301,6 +340,7 @@ public class BranchLogs implements Serializable {
         exitWithError("No such node exists.");
         return null;
     }
+
 
     public static void mergeSplit(String hash, String givenbranch) {
         List<String> branches = plainFilenamesIn(Repository.LOGS_DIR);
