@@ -204,7 +204,7 @@ public class Repository implements Serializable {
         }
         BranchLogs givenBranchLogs = BranchLogs.readBranch(branch);
         Node splitNode = BranchLogs.findSplitNode(branch);
-        TreeMap<String, File> splitMap = splitNode.filesMap;
+        TreeMap<String, File> splitMap = BranchLogs.findSplitMap(branch);
 //                BranchLogs.findSplitMap(branch);
         TreeMap<String, File> givenMap = givenBranchLogs.headMap;
         TreeMap<String, File> currMap = repo.filesMap;

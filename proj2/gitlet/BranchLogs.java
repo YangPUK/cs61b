@@ -256,7 +256,7 @@ public class BranchLogs implements Serializable {
         given = readBranch(branch);
         curr =  readCurrLog();
         if (given.splitPoint.containsKey(curr.parentHash)) {
-            return given.splitPoint.get(curr.headHash);
+            return given.splitPoint.get(curr.parentHash);
         }
         exitWithError("Could not find split node for branch " + branch);
         return null;
